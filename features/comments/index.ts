@@ -1,0 +1,5 @@
+export { CommentThread } from './components/CommentThread'
+export { CommentItem } from './components/CommentItem'
+export { CommentForm } from './components/CommentForm'
+export { useComments } from './hooks/useComments'
+export type { Comment, CommentWithAuthor } from './types/comment.types'
