@@ -7,7 +7,7 @@ export async function GET() {
   const auth = await requireRole(['student', 'staff', 'technician', 'admin'])
   if ('error' in auth) return auth.error
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('tickets')
     .select('*, category:categories(*), created_by_profile:profiles!created_by(*), assigned_to_profile:profiles!assigned_to(*)')

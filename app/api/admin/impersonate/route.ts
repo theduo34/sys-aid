@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'targetUserId is required' }, { status: 400 })
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: target } = await supabase
     .from('profiles')
     .select('role, full_name')
@@ -56,11 +56,11 @@ export async function DELETE() {
   const auth = await requireRole(['admin'])
   if ('error' in auth) return auth.error
 
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const session = getImpersonationSession(cookieStore)
 
   if (session) {
-    const supabase = createClient()
+    const supabase = await createClient()
     await supabase
       .from('impersonation_log')
       .update({ ended_at: new Date().toISOString() })

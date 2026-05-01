@@ -8,7 +8,11 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <AuthLayout title="Sign in to your account">
+    <AuthLayout
+      heading="Sign in to SysAid"
+      subtext="Don't have an account?"
+      subtextLink={{ label: 'Create one', href: '/register' }}
+    >
       <LoginForm />
     </AuthLayout>
   )

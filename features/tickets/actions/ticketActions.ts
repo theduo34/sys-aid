@@ -13,7 +13,7 @@ const defaultPriority: Record<Role, 'low' | 'medium' | 'high' | 'critical'> = {
 }
 
 export async function createTicket(data: CreateTicketInput, userRole: Role) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const priority = data.priority ?? defaultPriority[userRole]
   const slaHours = SLA_HOURS[priority].resolution
   const sla_deadline = new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString()
@@ -28,7 +28,7 @@ export async function createTicket(data: CreateTicketInput, userRole: Role) {
 }
 
 export async function updateTicket(id: string, updates: UpdateTicketInput) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('tickets')
     .update(updates)
@@ -40,7 +40,7 @@ export async function updateTicket(id: string, updates: UpdateTicketInput) {
 }
 
 export async function assignTicket(ticketId: string, technicianId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('tickets')
     .update({ assigned_to: technicianId, status: 'assigned' })
@@ -52,7 +52,7 @@ export async function assignTicket(ticketId: string, technicianId: string) {
 }
 
 export async function closeTicket(ticketId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('tickets')
     .update({ status: 'closed' })

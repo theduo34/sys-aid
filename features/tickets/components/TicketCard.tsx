@@ -5,11 +5,12 @@ import Link from 'next/link'
 
 interface TicketCardProps {
   ticket: TicketWithRelations
+  basePath: string
 }
 
-export function TicketCard({ ticket }: TicketCardProps) {
+export function TicketCard({ ticket, basePath }: TicketCardProps) {
   return (
-    <Link href={`/tickets/${ticket.id}`} className="flex flex-col gap-2 border border-border p-4 hover:bg-muted/50">
+    <Link href={`${basePath}/tickets/${ticket.id}`} className="flex flex-col gap-2 border border-border p-4 hover:bg-muted/50">
       <div className="flex items-center justify-between gap-2">
         <span className="truncate text-sm font-medium text-foreground">{ticket.title}</span>
         <div className="flex shrink-0 items-center gap-2">

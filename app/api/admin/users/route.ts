@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   }
 
   // DB trigger creates profile with role='student' — update to the intended role
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error: updateError } = await supabase
     .from('profiles')
     .update({ role: role as AllowedRole, full_name })

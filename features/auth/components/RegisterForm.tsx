@@ -1,14 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
+import { supabase } from '@/lib/supabase/client'
+import { AuthInput } from './AuthInput'
+import { AuthButton } from './AuthButton'
 
 export function RegisterForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isValid, setIsValid] = useState(false)
+
+  function handleChange(e: React.FormEvent<HTMLFormElement>) {
+    setIsValid(e.currentTarget.checkValidity())
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -34,16 +40,45 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <input name="full_name" type="text" placeholder="Full name" required className="border border-border bg-background px-3 py-2 text-sm text-foreground" />
-      <input name="email" type="email" placeholder="University email" required className="border border-border bg-background px-3 py-2 text-sm text-foreground" />
-      <input name="password" type="password" placeholder="Password (min 8 characters)" minLength={8} required className="border border-border bg-background px-3 py-2 text-sm text-foreground" />
-      <p className="text-xs text-muted-foreground">
-        All new accounts start as student. Lecturers and staff can request a role upgrade after signing in.
+    <form onSubmit={handleSubmit} onChange={handleChange} className="flex flex-col gap-4">
+      <AuthInput
+        id="reg-name"
+        label="Full name"
+        name="full_name"
+        type="text"
+        autoComplete="name"
+        placeholder="Kwame Mensah"
+        required
+      />
+      <AuthInput
+        id="reg-email"
+        label="University email"
+        name="email"
+        type="email"
+        autoComplete="email"
+        placeholder="you@ktu.edu.gh"
+        required
+      />
+      <AuthInput
+        id="reg-password"
+        label="Password"
+        name="password"
+        type="password"
+        autoComplete="new-password"
+        minLength={8}
+        placeholder="Min. 8 characters"
+        required
+      />
+      <p className="text-xs text-muted-foreground leading-relaxed">
+        All accounts start as <strong className="text-foreground font-medium">student</strong>.
+        Lecturers and staff can request an upgrade after signing in.
       </p>
-      <Button type="submit" disabled={isLoading}>
-        {isLoading ? 'Creating account…' : 'Create account'}
-      </Button>
+      <AuthButton
+        isLoading={isLoading}
+        disabled={!isValid}
+        label="Create account"
+        loadingLabel="Creating account…"
+      />
     </form>
   )
 }

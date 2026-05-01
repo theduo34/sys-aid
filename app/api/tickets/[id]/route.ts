@@ -7,7 +7,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   const auth = await requireRole(['student', 'staff', 'technician', 'admin'])
   if ('error' in auth) return auth.error
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('tickets')
     .select('*, category:categories(*), created_by_profile:profiles!created_by(*), assigned_to_profile:profiles!assigned_to(*)')
@@ -22,7 +22,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const auth = await requireRole(['technician', 'admin'])
   if ('error' in auth) return auth.error
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   if (auth.effectiveRole === 'technician') {
     const { data: ticket } = await supabase
@@ -57,7 +57,7 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
   const auth = await requireRole(['admin'])
   if ('error' in auth) return auth.error
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { error } = await supabase.from('tickets').delete().eq('id', params.id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

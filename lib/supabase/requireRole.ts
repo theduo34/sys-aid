@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import type { Role } from '@/lib/permissions'
 
 export async function requireRole(allowedRoles: Role[]) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -22,7 +22,8 @@ export async function requireRole(allowedRoles: Role[]) {
     return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) }
   }
 
-  const impSession = getImpersonationSession(cookies())
+  const cookieStore = await cookies()
+  const impSession = getImpersonationSession(cookieStore)
   const effectiveUserId = impSession?.targetUserId ?? user.id
   const effectiveRole   = impSession?.targetRole   ?? (profile.role as Role)
 

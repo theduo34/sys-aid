@@ -8,7 +8,11 @@ export const metadata: Metadata = {
 
 export default function ForgotPasswordPage() {
   return (
-    <AuthLayout title="Reset your password">
+    <AuthLayout
+      heading="Reset your password"
+      subtext="Remember your password?"
+      subtextLink={{ label: 'Sign in', href: '/login' }}
+    >
       <ForgotPasswordForm />
     </AuthLayout>
   )

@@ -8,7 +8,11 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <AuthLayout title="Create your account">
+    <AuthLayout
+      heading="Create your account"
+      subtext="Already have an account?"
+      subtextLink={{ label: 'Sign in', href: '/login' }}
+    >
       <RegisterForm />
     </AuthLayout>
   )

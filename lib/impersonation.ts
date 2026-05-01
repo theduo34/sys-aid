@@ -8,11 +8,10 @@ export interface ImpersonationSession {
   startedAt: string
 }
 
-// httpOnly cookie name for the impersonation session
 export const IMPERSONATION_COOKIE = 'sysaid_impersonation'
 
 export function getImpersonationSession(
-  cookieStore: ReturnType<typeof cookies>
+  cookieStore: Awaited<ReturnType<typeof cookies>>
 ): ImpersonationSession | null {
   const raw = cookieStore.get(IMPERSONATION_COOKIE)?.value
   if (!raw) return null

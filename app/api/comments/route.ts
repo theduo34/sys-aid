@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('comments')
     .insert({ ...parsed.data, author_id: auth.effectiveUserId, ticket_id: body.ticket_id })

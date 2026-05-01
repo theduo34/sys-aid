@@ -4,7 +4,16 @@
       "Bash(bun run *)",
       "Bash(bun audit *)",
       "Bash(bun update *)",
-      "Bash(bun install *)"
+      "Bash(bun install *)",
+      "Bash(node -e \"const p = require\\('./node_modules/@phosphor-icons/react/dist/index.cjs'\\); const names = Object.keys\\(p\\).filter\\(k => /Dashboard|Queue|Gear|Chart|Book|Ticket|Users|Layout|Stack|Grid|House|List/.test\\(k\\)\\); console.log\\(names.join\\('\\\\n'\\)\\)\")",
+      "Bash(node *)",
+      "Bash(grep -iE '^\\(Check|Warning|Clock|Bell|ArrowsClockwise|Spinner|Plus|X|List|SignOut|ArrowLeft|User$|Hamburger|Article|Lightning|TrendUp|ArrowUp|Pulse|Activity\\)')",
+      "Bash(grep -iE '^\\(Warning|List$|ListBullets|SignOut|X$|Plus|Lightning|Pulse|TrendUp|ArrowFatUp|PlusCircle|Minus\\)')",
+      "Bash(grep -iE '^\\(ArrowRight|Bell|BellSimple|FilePlus|BookOpenText|ClipboardText|CalendarPlus|NewspaperClipping|Article$|Lightning|MagnifyingGlass|Funnel\\)')",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('style:', d.get\\('style'\\)\\); print\\('baseColor:', d.get\\('baseColor','n/a'\\)\\)\")",
+      "Bash(bun shadcn:add sidebar dropdown-menu)",
+      "Bash(grep -iE '^\\(User$|UserCircle|Person|BellSimple\\)')",
+      "Bash(grep *)"
     ]
   }
 }

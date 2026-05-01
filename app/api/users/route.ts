@@ -7,7 +7,7 @@ export async function GET() {
   const auth = await requireRole(['admin'])
   if ('error' in auth) return auth.error
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
@@ -27,7 +27,7 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('profiles')
     .update(parsed.data)

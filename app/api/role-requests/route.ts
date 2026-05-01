@@ -7,7 +7,7 @@ export async function GET() {
   const auth = await requireRole(['admin'])
   if ('error' in auth) return auth.error
 
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data, error } = await supabase
     .from('role_requests')
     .select('*, user:profiles!user_id(id, full_name, role, department)')
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.flatten().fieldErrors.reason?.[0] ?? 'Invalid input' }, { status: 400 })
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // One pending request at a time
   const { data: existing } = await supabase

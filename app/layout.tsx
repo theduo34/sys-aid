@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { ThemeProvider } from '@/providers/ThemeProvider'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' })
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -25,8 +26,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <AuthProvider>
-            {children}
-            <Toaster />
+            <TooltipProvider delayDuration={0}>
+              {children}
+              <Toaster richColors />
+            </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

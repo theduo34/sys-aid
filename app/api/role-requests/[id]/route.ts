@@ -13,7 +13,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   }
 
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data: request } = await supabase
     .from('role_requests')
