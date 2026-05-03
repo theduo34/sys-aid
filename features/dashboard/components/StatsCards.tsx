@@ -26,15 +26,15 @@ export function StatsCards() {
       label:     'Open Tickets',
       value:     stats?.openTickets,
       icon:      TicketIcon,
-      iconClass: 'text-primary',
-      iconBg:    'bg-primary/10',
+      iconClass: 'text-muted-foreground',
+      iconBg:    'bg-muted',
     },
     {
       label:     'In Progress',
       value:     stats?.inProgressTickets,
       icon:      ArrowsClockwiseIcon,
-      iconClass: 'text-secondary-foreground',
-      iconBg:    'bg-secondary',
+      iconClass: 'text-muted-foreground',
+      iconBg:    'bg-muted',
     },
     {
       label:     'Resolved (7 days)',
@@ -60,29 +60,28 @@ export function StatsCards() {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
       {cards.map(({ label, value, icon: Icon, iconClass, iconBg }) => (
         <div
           key={label}
-          className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4"
+          className="flex flex-col gap-4 rounded-lg border border-border bg-card p-5"
         >
-          {/* Icon circle — top of card */}
-          <div className={cn('size-10 flex items-center justify-center rounded-full', iconBg)}>
-            <Icon className={cn('size-5', iconClass)} />
-          </div>
-
-          {/* Number + label */}
-          <div className="flex flex-col gap-0.5">
-            <span
-              className={cn(
-                'text-2xl font-bold tabular-nums leading-none text-foreground',
-                isLoading && 'animate-pulse text-muted-foreground'
-              )}
-            >
-              {isLoading ? '—' : (value ?? 0)}
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+              {label}
             </span>
-            <span className="text-xs text-muted-foreground leading-tight">{label}</span>
+            <div className={cn('flex size-7 items-center justify-center rounded-md', iconBg)}>
+              <Icon className={cn('size-3.5', iconClass)} />
+            </div>
           </div>
+          <span
+            className={cn(
+              'text-3xl font-bold tabular-nums leading-none text-foreground',
+              isLoading && 'animate-pulse text-muted-foreground'
+            )}
+          >
+            {isLoading ? '—' : (value ?? 0)}
+          </span>
         </div>
       ))}
     </div>

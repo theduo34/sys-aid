@@ -32,7 +32,6 @@ export default async function RoleUuidLayout({ children, params }: Props) {
 
   if (!profile) redirect('/login')
 
-  // If UUID or role in URL does not match the real user → redirect to their correct URL
   if (user.id !== uuid || profile.role !== role) {
     redirect(`/${profile.role}/${user.id}/dashboard`)
   }

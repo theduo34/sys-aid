@@ -3,6 +3,7 @@ import { ArticleDetail } from '@/features/knowledge-base/components/ArticleDetai
 
 export const metadata: Metadata = { title: 'Article' }
 
-export default function ArticleRoute({ params }: { params: { slug: string } }) {
-  return <ArticleDetail slug={params.slug} />
+export default async function ArticleRoute({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  return <ArticleDetail slug={slug} />
 }

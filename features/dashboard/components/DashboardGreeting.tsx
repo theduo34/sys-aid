@@ -20,20 +20,23 @@ export function DashboardGreeting() {
   const firstName = profile?.full_name?.split(' ')[0] ?? ''
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-lg border border-border bg-card px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold text-foreground">
-          {getGreeting()}{firstName ? `, ${firstName}` : ''} 👋
+        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          {getGreeting()}
+        </p>
+        <h1 className="text-2xl font-semibold text-foreground">
+          {firstName || 'Welcome back'}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Here&apos;s what&apos;s happening with your IT tickets today.
+          Here&apos;s your IT support summary for today.
         </p>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
         {(role === 'student' || role === 'staff' || role === 'admin') && (
           <Button asChild size="sm">
             <Link href={`${base}/tickets/new`}>
-              <PlusIcon className="size-4 mr-1.5" />
+              <PlusIcon data-icon="inline-start" />
               New Ticket
             </Link>
           </Button>

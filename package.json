@@ -12,7 +12,8 @@
     "supabase:start": "bunx supabase start",
     "supabase:restart": "bunx supabase stop && bunx supabase start",
     "supabase:generate-types": "bunx supabase gen types typescript --local --schema public > types_db.ts",
-    "supabase:generate-migration": "bunx supabase db diff | bunx supabase migration new"
+    "supabase:generate-migration": "bunx supabase db diff | bunx supabase migration new",
+    "seed": "bun run scripts/seed.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

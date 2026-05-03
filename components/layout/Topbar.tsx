@@ -2,14 +2,18 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   BellSimpleIcon,
   WarningIcon,
   UserCircleIcon,
   GearIcon,
   SignOutIcon,
+  SunIcon,
+  MoonIcon,
+  ArrowLeftIcon,
 } from '@phosphor-icons/react'
+import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
@@ -54,9 +58,11 @@ interface TopbarProps {
 }
 
 export function Topbar({ impersonationSession }: TopbarProps) {
-  const pathname    = usePathname()
+  const pathname = usePathname()
+  const router = useRouter()
   const { profile, user, signOut } = useAuth()
-  const base        = useBasePath()
+  const { resolvedTheme, setTheme } = useTheme()
+  const base = useBasePath()
   const [notifOpen,   setNotifOpen]   = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
@@ -74,13 +80,14 @@ export function Topbar({ impersonationSession }: TopbarProps) {
       : '/login'
   }
 
-  const pageLabel = getRouteLabel(pathname)
+  const parts = pathname.split('/').filter(Boolean)
+  // parts: [role, uuid, page, subPage?]
+  const isSubPage = parts.length >= 4
+  const parentPath = `/${parts.slice(0, 3).join('/')}`
 
   return (
     <>
       <header className="flex flex-col border-b border-border bg-sidebar shrink-0">
-
-        {/* Impersonation banner */}
         {impersonationSession && (
           <div className="flex items-center justify-between bg-warning px-4 py-2 text-sm text-warning-foreground">
             <div className="flex items-center gap-2">
@@ -95,18 +102,23 @@ export function Topbar({ impersonationSession }: TopbarProps) {
           </div>
         )}
 
-        <div className="flex h-12 items-center gap-1 px-4">
-          {/* Sidebar toggle */}
+        <div className="flex h-12 items-center gap-2 px-4">
           <SidebarTrigger className="text-muted-foreground hover:text-foreground shrink-0" />
-
-          <span className="text-muted-foreground/40 select-none">|</span>
-
-          {/* Current page label */}
-          <span className="text-sm font-medium text-foreground">{pageLabel}</span>
+          {isSubPage ? (
+            <button
+              onClick={() => router.push(parentPath)}
+              className="flex items-center justify-center rounded-full border p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Go back"
+            >
+              <ArrowLeftIcon className="size-4" />
+            </button>
+          ) : (
+            <span className="text-muted-foreground/40 select-none">|</span>
+          )}
+          <span className="text-sm font-medium text-foreground">{getRouteLabel(pathname)}</span>
 
           <div className="flex-1" />
 
-          {/* Notification bell */}
           <button
             onClick={() => setNotifOpen(true)}
             className="relative text-muted-foreground hover:text-foreground transition-colors me-2"
@@ -115,7 +127,6 @@ export function Topbar({ impersonationSession }: TopbarProps) {
             <BellSimpleIcon className="size-5" />
           </button>
 
-          {/* User avatar dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
@@ -127,11 +138,8 @@ export function Topbar({ impersonationSession }: TopbarProps) {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-56 rounded-lg p-2 mt-1">
-              {/* Identity header */}
               <div className="px-2 py-1.5 mb-1">
-                <p className="text-sm font-semibold text-foreground truncate">
-                  {profile?.full_name}
-                </p>
+                <p className="text-sm font-semibold text-foreground truncate">{profile?.full_name}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
 
@@ -151,6 +159,16 @@ export function Topbar({ impersonationSession }: TopbarProps) {
                 </Link>
               </DropdownMenuItem>
 
+              <DropdownMenuItem
+                className="cursor-pointer rounded-md gap-2"
+                onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              >
+                {resolvedTheme === 'dark'
+                  ? <SunIcon className="size-4" />
+                  : <MoonIcon className="size-4" />}
+                {resolvedTheme === 'dark' ? 'Light mode' : 'Dark mode'}
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator className="my-1" />
 
               <DropdownMenuItem
@@ -165,7 +183,6 @@ export function Topbar({ impersonationSession }: TopbarProps) {
         </div>
       </header>
 
-      {/* Notifications panel */}
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
         <SheetContent side="right" className="w-80 sm:w-96">
           <SheetHeader className="border-b border-border pb-4">
@@ -179,7 +196,6 @@ export function Topbar({ impersonationSession }: TopbarProps) {
         </SheetContent>
       </Sheet>
 
-      {/* Sign-out confirm */}
       <ConfirmDialog
         open={confirmOpen}
         title="Sign out?"

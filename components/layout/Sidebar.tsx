@@ -1,5 +1,6 @@
 'use client'
 
+import { Fragment } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -9,13 +10,12 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from '@/components/ui/sidebar'
+import { Separator } from '@/components/ui/separator'
 import {
   GridFourIcon,
   TicketIcon,
@@ -36,7 +36,6 @@ interface NavItem {
 }
 
 interface NavGroup {
-  label?: string
   items: NavItem[]
 }
 
@@ -49,16 +48,14 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: 'Agent',
     items: [
       { label: 'Queue', path: 'queue', icon: QueueIcon, roles: ['technician', 'admin'] },
     ],
   },
   {
-    label: 'Admin',
     items: [
-      { label: 'Users',      path: 'users',      icon: UsersIcon,   roles: ['admin'] },
-      { label: 'Categories', path: 'categories', icon: GearIcon,    roles: ['admin'] },
+      { label: 'Users',      path: 'users',      icon: UsersIcon,    roles: ['admin'] },
+      { label: 'Categories', path: 'categories', icon: GearIcon,     roles: ['admin'] },
       { label: 'Reports',    path: 'reports',    icon: ChartBarIcon, roles: ['admin'] },
     ],
   },
@@ -77,10 +74,16 @@ export function AppSidebar() {
     return pathname === href || pathname.startsWith(href + '/')
   }
 
-  return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+  const visibleGroups = navGroups
+    .map((group) => ({
+      items: group.items
+        .filter((item) => item.roles.includes(role))
+        .map((item) => ({ ...item, href: `${base}/${item.path}` })),
+    }))
+    .filter((g) => g.items.length > 0)
 
-      {/* Brand */}
+  return (
+    <Sidebar collapsible="icon" className="border-r">
       <SidebarHeader className="px-3 py-4">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -91,52 +94,38 @@ export function AppSidebar() {
               <div className="flex size-8 items-center justify-center rounded-lg bg-foreground shrink-0">
                 <HeadsetIcon className="size-4 text-background" />
               </div>
-              <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
+              <div className="group-data-[collapsible=icon]:hidden">
                 <span className="font-semibold text-lg text-foreground">SysAid</span>
-                {/*<span className="text-[11px] text-muted-foreground">IT Help Desk</span>*/}
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
-
-      {/* Nav groups */}
-      <SidebarContent className="px-1 py-1">
-        {navGroups.map((group, gi) => {
-          const visible = group.items
-            .filter((item) => item.roles.includes(role))
-            .map((item) => ({ ...item, href: `${base}/${item.path}` }))
-
-          if (!visible.length) return null
-
-          return (
-            <SidebarGroup key={gi} className="py-2">
-              {/*{group.label && (*/}
-              {/*  <SidebarGroupLabel className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/35">*/}
-              {/*    {group.label}*/}
-              {/*  </SidebarGroupLabel>*/}
-              {/*)}*/}
+      <SidebarContent className="px-1 py-2">
+        {visibleGroups.map((group, gi) => (
+          <Fragment key={gi}>
+            <SidebarGroup className="py-0.5">
               <SidebarGroupContent>
-                <SidebarMenu className="gap-1">
-                  {visible.map(({ label, href, icon: Icon }) => {
+                {gi > 0 && <Separator className="mb-2" />}
+                <SidebarMenu className="gap-0.5">
+                  {group.items.map(({ label, href, icon: Icon }) => {
                     const active = isActive(href)
                     return (
                       <SidebarMenuItem key={href}>
                         <SidebarMenuButton
                           asChild
                           tooltip={label}
-                          isActive={active}
                           className={cn(
                             'h-9 rounded-md border-none transition-colors',
                             active
-                              ? 'bg-sidebar-foreground/10 text-sidebar-foreground font-semibold hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground'
+                              ? 'bg-sidebar-foreground/10 text-sidebar-foreground font-semibold hover:bg-sidebar-foreground/15'
                               : 'text-sidebar-foreground/50 hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground'
                           )}
                         >
                           <Link href={href}>
                             <Icon className="size-4 shrink-0" />
-                            <span className=" ms-1 text-sm">{label}</span>
+                            <span className="ms-1 text-sm">{label}</span>
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
@@ -145,10 +134,9 @@ export function AppSidebar() {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-          )
-        })}
+          </Fragment>
+        ))}
       </SidebarContent>
-
     </Sidebar>
   )
 }
