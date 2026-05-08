@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import {
   HeadsetIcon,
   TicketIcon,
@@ -15,17 +15,17 @@ import {
 } from '@phosphor-icons/react'
 
 // ── Animation variants ────────────────────────────────────────────────────────
-const fadeUp = {
+const fadeUp: Variants = {
   hidden:  { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' as const } },
 }
 
-const stagger = {
+const stagger: Variants = {
   hidden:  {},
   visible: { transition: { staggerChildren: 0.08 } },
 }
 
-const staggerSlow = {
+const staggerSlow: Variants = {
   hidden:  {},
   visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 }

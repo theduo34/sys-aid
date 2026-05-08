@@ -80,7 +80,7 @@ export function TicketForm() {
       )
 
       if (error || !ticket) {
-        toast.error(typeof error === 'object' && 'message' in error ? error.message : 'Failed to submit ticket.')
+        toast.error(error && typeof error === 'object' && 'message' in error ? (error as { message: string }).message : 'Failed to submit ticket.')
         return
       }
 

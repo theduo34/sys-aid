@@ -47,7 +47,10 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "postcss": "^8.5.10"
+    "postcss": "^8.5.10",
+    "fast-uri": ">=3.1.2",
+    "ip-address": ">=10.1.1",
+    "hono": ">=4.12.16"
   },
   "ignoreScripts": [
     "sharp",
