@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireRole } from '@/lib/supabase/requireRole'
 import { createClient } from '@/lib/supabase/server'
+import { createNotification } from '@/lib/notifications'
 import { createCommentSchema } from '@/lib/validations/comment'
 import { can } from '@/lib/permissions'
 import { z } from 'zod'
@@ -26,6 +27,13 @@ export async function POST(req: Request) {
   }
 
   const supabase = await createClient()
+
+  const { data: ticket } = await supabase
+    .from('tickets')
+    .select('created_by, title')
+    .eq('id', ticket_id)
+    .single()
+
   const { data, error } = await supabase
     .from('comments')
     .insert({ ticket_id, body, is_internal, author_id: auth.effectiveUserId })
@@ -33,5 +41,16 @@ export async function POST(req: Request) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  if (!is_internal && ticket && ticket.created_by !== auth.effectiveUserId) {
+    await createNotification({
+      userId: ticket.created_by,
+      type:   'comment_added',
+      title:  'New reply on your ticket',
+      body:   body.slice(0, 120),
+      link:   `tickets/${ticket_id}`,
+    })
+  }
+
   return NextResponse.json({ data }, { status: 201 })
 }

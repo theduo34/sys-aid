@@ -77,7 +77,7 @@ export function DashboardPage() {
 
           {/* Quick link card */}
           <a
-            href="https://www.ktu.edu.gh"
+            href="https://connect.ktu.edu.gh/"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4 hover:bg-muted/40 transition-colors group"

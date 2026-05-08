@@ -23,9 +23,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // Cookies from another tab carry a valid session here, but this tab hasn't
-      // gone through login — redirect without signing out so the other tab is unaffected.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // New tab without a login — redirect without signing out so other tabs stay active.
       if (event === 'INITIAL_SESSION' && session && !sessionStorage.getItem(TAB_KEY)) {
         setIsLoading(false)
         const onAuthPage = AUTH_PATHS.some((p) => window.location.pathname.startsWith(p))
@@ -48,18 +47,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sessionStorage.setItem(TAB_KEY, '1')
       }
 
+      // Set user synchronously — profile is fetched in the separate effect below.
+      // Never await inside onAuthStateChange; the auth lock is still held here and
+      // React Strict Mode's unmount/remount cycle would orphan it.
       setUser(session.user)
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-      setProfile(data)
-      setIsLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [])
+
+  // Fetch profile whenever the authenticated user ID changes
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+
+    async function fetchProfile() {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user!.id)
+        .single()
+      if (!cancelled) {
+        setProfile(data)
+        setIsLoading(false)
+      }
+    }
+
+    fetchProfile()
+    return () => { cancelled = true }
+  }, [user?.id])
 
   return (
     <AuthContext.Provider value={{ user, profile, isLoading }}>

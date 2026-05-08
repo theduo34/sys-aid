@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireRole } from '@/lib/supabase/requireRole'
 import { createClient } from '@/lib/supabase/server'
+import { createNotification } from '@/lib/notifications'
 import { reviewRoleRequestSchema } from '@/lib/validations/role-request'
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -34,6 +35,22 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       .from('profiles')
       .update({ role: 'staff' })
       .eq('id', request.user_id)
+
+    await createNotification({
+      userId: request.user_id,
+      type:   'role_approved',
+      title:  'Staff access granted',
+      body:   'Your request for staff access has been approved. Your account has been upgraded.',
+      link:   'dashboard',
+    })
+  } else if (parsed.data.status === 'rejected') {
+    await createNotification({
+      userId: request.user_id,
+      type:   'role_rejected',
+      title:  'Staff request not approved',
+      body:   'Your request for staff access was not approved at this time.',
+      link:   null,
+    })
   }
 
   return NextResponse.json({ data: { ok: true } })

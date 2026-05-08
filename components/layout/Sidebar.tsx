@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -28,6 +29,13 @@ import {
 } from '@phosphor-icons/react'
 import type { Role } from '@/lib/permissions'
 
+const roleConfig: Record<Role, { dot: string; label: string }> = {
+  student:    { dot: 'bg-muted-foreground', label: 'Student'    },
+  staff:      { dot: 'bg-warning',          label: 'Staff'      },
+  technician: { dot: 'bg-primary',          label: 'Technician' },
+  admin:      { dot: 'bg-destructive',      label: 'Admin'      },
+}
+
 interface NavItem {
   label: string
   path: string
@@ -43,7 +51,7 @@ const navGroups: NavGroup[] = [
   {
     items: [
       { label: 'Dashboard',      path: 'dashboard',      icon: GridFourIcon, roles: ['student', 'staff', 'technician', 'admin'] },
-      { label: 'My Tickets',     path: 'tickets',        icon: TicketIcon,   roles: ['student', 'staff', 'admin'] },
+      { label: 'My Tickets',     path: 'tickets',        icon: TicketIcon,   roles: ['student', 'staff', 'technician', 'admin'] },
       { label: 'Knowledge Base', path: 'knowledge-base', icon: BookOpenIcon, roles: ['student', 'staff', 'technician', 'admin'] },
     ],
   },
@@ -137,6 +145,19 @@ export function AppSidebar() {
           </Fragment>
         ))}
       </SidebarContent>
+
+      <SidebarFooter className="px-4 pb-4 pt-1">
+        {role && (
+          <div className="flex items-center gap-2 group-data-[collapsible=icon]:justify-center">
+            <span className={cn('size-2 rounded-full shrink-0', roleConfig[role].dot)} />
+            <span className={cn(
+              'text-[10px] font-semibold uppercase tracking-widest group-data-[collapsible=icon]:hidden text-sidebar-foreground/40',
+            )}>
+              {roleConfig[role].label}
+            </span>
+          </div>
+        )}
+      </SidebarFooter>
     </Sidebar>
   )
 }

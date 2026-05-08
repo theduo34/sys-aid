@@ -45,6 +45,9 @@ const rolePermissions: Record<Role, Permission[]> = {
     'kb:read',
   ],
   technician: [
+    'tickets:create',
+    'tickets:read:own',
+    'tickets:close:own',
     'tickets:read:assigned',
     'tickets:update:assigned',
     'tickets:assign:self',

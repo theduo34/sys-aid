@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createNotification } from '@/lib/notifications'
 import { SLA_HOURS } from '@/lib/constants'
 import type { Role } from '@/lib/permissions'
 import type { CreateTicketInput, UpdateTicketInput } from '@/lib/validations/ticket'
@@ -76,6 +77,26 @@ export async function createTicket(data: CreateTicketInput, userRole: Role) {
     })
     .select()
     .single()
+
+  if (ticket && !error) {
+    await createNotification({
+      userId: user.id,
+      type:   'ticket_created',
+      title:  'Ticket submitted',
+      body:   `Your ticket "${data.title}" has been received and is being reviewed.`,
+      link:   `tickets/${ticket.id}`,
+    })
+
+    if (assignee) {
+      await createNotification({
+        userId: assignee,
+        type:   'ticket_assigned',
+        title:  'New ticket assigned',
+        body:   `"${data.title}" has been assigned to you.`,
+        link:   'queue',
+      })
+    }
+  }
 
   return { data: ticket, error }
 }

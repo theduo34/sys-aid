@@ -18,7 +18,9 @@
       "Bash(bun shadcn:add dialog drawer tabs label select badge textarea --yes)",
       "Bash(bun lint *)",
       "Bash(bun build *)",
-      "Bash(Remove-Item *)"
+      "Bash(Remove-Item *)",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\School\\\\KTU\\\\sys-aid\\\\features\\\\notifications\\\\types\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Name)"
     ]
   }
 }

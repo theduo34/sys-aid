@@ -1,6 +1,6 @@
 'use client'
 
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { useReportData } from '../hooks/useReportData'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -47,15 +47,17 @@ export function CategoryBreakdown() {
       <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
         Tickets by Category
       </span>
-      <ResponsiveContainer width="100%" height={220}>
-        <PieChart>
+      {/* No Legend inside the chart — legend is rendered below to avoid clipping */}
+      <ResponsiveContainer width="100%" height={180}>
+        <PieChart margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
           <Pie
             data={chartData}
             dataKey="value"
             nameKey="name"
             cx="50%"
-            cy="48%"
+            cy="50%"
             outerRadius={72}
+            strokeWidth={1}
           >
             {chartData.map((_, i) => (
               <Cell key={i} fill={SLICE_FILLS[i % SLICE_FILLS.length]} />
@@ -64,12 +66,19 @@ export function CategoryBreakdown() {
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', fontSize: 12 }}
           />
-          <Legend
-            iconSize={8}
-            formatter={(v) => <span style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>{v}</span>}
-          />
         </PieChart>
       </ResponsiveContainer>
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 justify-center">
+        {chartData.map((entry, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <span
+              className="size-2 rounded-full shrink-0"
+              style={{ backgroundColor: SLICE_FILLS[i % SLICE_FILLS.length] }}
+            />
+            <span className="text-[11px] text-muted-foreground">{entry.name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

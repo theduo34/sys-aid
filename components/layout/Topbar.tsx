@@ -62,7 +62,7 @@ interface TopbarProps {
 export function Topbar({ impersonationSession }: TopbarProps) {
   const pathname = usePathname()
   const router   = useRouter()
-  const { profile, user, signOut } = useAuth()
+  const { profile, signOut } = useAuth()
   const { resolvedTheme, setTheme } = useTheme()
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
   const [notifOpen,    setNotifOpen]   = useState(false)
@@ -150,7 +150,7 @@ export function Topbar({ impersonationSession }: TopbarProps) {
             <DropdownMenuContent align="end" className="w-56 rounded-lg p-2 mt-1">
               <div className="px-2 py-1.5 mb-1">
                 <p className="text-sm font-semibold text-foreground truncate">{profile?.full_name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                {/*<p className="text-xs text-muted-foreground truncate">{user?.email}</p>*/}
                 <p className="text-xs text-muted-foreground capitalize">{profile?.role}</p>
               </div>
 

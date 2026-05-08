@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireRole } from '@/lib/supabase/requireRole'
 import { createClient } from '@/lib/supabase/server'
+import { createNotification } from '@/lib/notifications'
 import { updateTicketSchema } from '@/lib/validations/ticket'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -44,6 +45,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
+  const { data: prev } = await supabase
+    .from('tickets')
+    .select('status, assigned_to, created_by, title')
+    .eq('id', id)
+    .single()
+
   const { data, error } = await supabase
     .from('tickets')
     .update(parsed.data)
@@ -52,6 +59,36 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  if (prev && data) {
+    const statusLabels: Record<string, string> = {
+      assigned:    'assigned to a technician',
+      in_progress: 'in progress',
+      pending:     'pending your response',
+      resolved:    'resolved',
+      closed:      'closed',
+    }
+    if (parsed.data.status && parsed.data.status !== prev.status) {
+      const label = statusLabels[parsed.data.status] ?? parsed.data.status
+      await createNotification({
+        userId: prev.created_by,
+        type:   'ticket_status',
+        title:  'Ticket status updated',
+        body:   `Your ticket "${prev.title}" is now ${label}.`,
+        link:   `tickets/${id}`,
+      })
+    }
+    if (parsed.data.assigned_to && parsed.data.assigned_to !== prev.assigned_to) {
+      await createNotification({
+        userId: parsed.data.assigned_to,
+        type:   'ticket_assigned',
+        title:  'Ticket assigned to you',
+        body:   `"${prev.title}" has been assigned to you.`,
+        link:   'queue',
+      })
+    }
+  }
+
   return NextResponse.json({ data })
 }
 

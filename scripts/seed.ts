@@ -12,7 +12,7 @@ const db = createClient(url, key, {
   auth: { autoRefreshToken: false, persistSession: false },
 })
 
-const PASSWORD     = 'Password123'
+const PASSWORD     = process.env.SEED_PASSWORD ?? 'Password123!'
 const hoursFromNow = (h: number) => new Date(Date.now() + h * 3_600_000).toISOString()
 const hoursAgo     = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString()
 
@@ -243,8 +243,180 @@ async function seed() {
     else console.log(`  ${comments.length} comments created`)
   }
 
+  // --- Knowledge Base Articles ---
+  const { data: existingArticles } = await db.from('knowledge_articles').select('slug')
+  const existingSlugs = new Set(existingArticles?.map((a) => a.slug) ?? [])
+
+  const articles = [
+    {
+      title:    'How to connect to the KTU VPN',
+      slug:     'connect-ktu-vpn',
+      published: true,
+      created_by: ids.admin1,
+      body: `## Connecting to the KTU VPN
+
+The KTU VPN gives you secure access to university systems from off-campus.
+
+### Requirements
+- A KTU staff or student account
+- The GlobalProtect VPN client (available from IT Services)
+
+### Steps
+1. Download and install **GlobalProtect** from the IT portal.
+2. Open GlobalProtect and enter the gateway address: \`vpn.ktu.edu.gh\`
+3. Sign in with your KTU email and password.
+4. Click **Connect**.
+
+### Troubleshooting
+- **Authentication failed** – Check your password has not expired at [portal.ktu.edu.gh](https://portal.ktu.edu.gh).
+- **Cannot reach gateway** – Ensure you are not already on-campus (VPN is off-campus only).
+- If problems persist, submit a ticket under the *Network & Connectivity* category.`,
+    },
+    {
+      title:    'How to activate Microsoft Office 365 on your device',
+      slug:     'activate-office-365',
+      published: true,
+      created_by: ids.admin1,
+      body: `## Activating Office 365
+
+All KTU students and staff are entitled to free Office 365 licenses.
+
+### Steps
+1. Open any Office application (Word, Excel, etc.).
+2. Go to **File → Account → Sign In**.
+3. Enter your KTU email address (\`yourname@ktu.edu.gh\`).
+4. When prompted, sign in at the Microsoft page with your KTU credentials.
+5. Office will activate automatically within a few minutes.
+
+### Common Errors
+| Error | Fix |
+|---|---|
+| "No licence assigned" | Contact IT — your licence may not be provisioned yet. |
+| "Account locked" | Reset your password at [portal.ktu.edu.gh](https://portal.ktu.edu.gh). |
+
+Still having issues? Submit a ticket under *Software & Applications*.`,
+    },
+    {
+      title:    'Printing from campus workstations',
+      slug:     'campus-printing-guide',
+      published: true,
+      created_by: ids.admin2,
+      body: `## Campus Printing Guide
+
+### Available Printers
+Printers are available in the Library, Staff Room, and all departmental labs.
+
+### How to Print
+1. Open your document and press **Ctrl + P** (Windows) or **⌘ + P** (Mac).
+2. Select the nearest printer from the list (e.g. \`HP-LibraryA3\`).
+3. Choose your print settings and click **Print**.
+4. Collect your document within **15 minutes** — uncollected jobs are deleted automatically.
+
+### Printer Shows Offline?
+1. Check the printer is powered on and has paper.
+2. On Windows: go to *Settings → Printers & Scanners*, select the printer, and click **Open queue → Printer → See what's printing → Resume**.
+3. If the issue persists, raise a ticket under *Printing & Scanning*.
+
+### Printing Quotas
+Students receive a monthly quota of **200 pages**. Additional pages can be purchased at the Library help desk.`,
+    },
+    {
+      title:    'Resetting your KTU account password',
+      slug:     'reset-ktu-password',
+      published: true,
+      created_by: ids.admin1,
+      body: `## Resetting Your Password
+
+### Self-Service Reset (Recommended)
+1. Go to [portal.ktu.edu.gh](https://portal.ktu.edu.gh) and click **Forgot Password**.
+2. Enter your KTU email address.
+3. Check your registered personal email for a reset link.
+4. Follow the link and create a new password.
+
+### Password Requirements
+- Minimum **8 characters**
+- At least one uppercase letter
+- At least one number
+- Cannot reuse your last 3 passwords
+
+### Still Locked Out?
+Visit the IT Help Desk in person with your student/staff ID:
+- **Location:** Block A, Room 101
+- **Hours:** Monday – Friday, 8:00 am – 5:00 pm
+
+Or submit a ticket under *Access & Accounts* and an agent will assist remotely.`,
+    },
+    {
+      title:    'Using the Student Portal (LMS)',
+      slug:     'student-portal-guide',
+      published: true,
+      created_by: ids.admin2,
+      body: `## Student Portal & LMS Guide
+
+### Accessing the Portal
+Go to [portal.ktu.edu.gh](https://portal.ktu.edu.gh) and sign in with your KTU credentials.
+
+### Common Tasks
+| Task | Where to find it |
+|---|---|
+| View timetable | Dashboard → My Timetable |
+| Download course materials | Courses → Select course → Materials |
+| Submit assignments | Courses → Select course → Assignments |
+| Check grades | Dashboard → My Results |
+
+### Mobile Access
+The portal is mobile-friendly. You can also download the **KTU Mobile** app from the App Store or Google Play.
+
+### Troubleshooting
+- **Page won't load** – Clear your browser cache (Ctrl + Shift + Delete) and try again.
+- **Missing course** – Contact your department administrator; enrolment may not yet be processed.
+- **Cannot submit assignment** – Check the deadline has not passed. If within deadline, submit a ticket under *Student Portal / LMS*.`,
+    },
+    {
+      title:    'Setting up university email on your phone',
+      slug:     'setup-email-mobile',
+      published: true,
+      created_by: ids.admin3,
+      body: `## Setting Up University Email on Mobile
+
+### iOS (iPhone / iPad)
+1. Go to **Settings → Mail → Accounts → Add Account**.
+2. Choose **Microsoft Exchange**.
+3. Enter your KTU email and a description (e.g. "KTU Mail").
+4. Tap **Next** and enter your password when prompted.
+5. Allow it to configure automatically.
+
+### Android
+1. Open **Gmail** (or your default email app) → **Add account**.
+2. Choose **Exchange / Office 365**.
+3. Enter your KTU email and tap **Next**.
+4. Enter your password and follow the setup wizard.
+
+### Server Settings (if manual setup is required)
+| Field | Value |
+|---|---|
+| Server | \`mail.ktu.edu.gh\` |
+| Port | 443 |
+| Security | SSL/TLS |
+| Username | Your full KTU email |
+
+### Sync Not Working?
+Try removing and re-adding the account. If the issue continues, submit a ticket under *Email & Communication*.`,
+    },
+  ]
+
+  let articlesCreated = 0
+  for (const article of articles) {
+    if (!existingSlugs.has(article.slug)) {
+      const { error: artErr } = await db.from('knowledge_articles').insert(article)
+      if (artErr) console.error(`  article error [${article.slug}]: ${artErr.message}`)
+      else articlesCreated++
+    }
+  }
+  console.log(`  ${articlesCreated} knowledge base articles created`)
+
   console.log('\n--- Seed complete ---')
-  console.log('All accounts use password: Password123!\n')
+  console.log(`All accounts use password: ${PASSWORD}\n`)
   const groups = [
     { label: 'Students',    prefix: 'student',    count: 5 },
     { label: 'Staff',       prefix: 'staff',      count: 2 },

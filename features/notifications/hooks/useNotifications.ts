@@ -1,128 +1,68 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/features/auth/hooks/useAuth'
-import type { TicketWithRelations } from '@/features/tickets/types/ticket.types'
+import type { DbNotification } from '../types/notification.types'
 
-export interface AppNotification {
-  id: string
-  type: 'ticket_assigned' | 'status_changed' | 'comment_added' | 'ticket_created'
-  title: string
-  body: string
-  ticketId: string
-  createdAt: string
-  read: boolean
-}
+export type { DbNotification }
 
 export function useNotifications() {
-  const { user, role } = useAuth()
-  const [notifications, setNotifications] = useState<AppNotification[]>([])
-  // Track the IDs of tickets the user owns so we can filter comment events
-  const ownedTicketIds = useRef<Set<string>>(new Set())
-
-  const markAllRead = useCallback(() => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-  }, [])
-
-  const markRead = useCallback((id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    )
-  }, [])
-
-  const push = useCallback((n: Omit<AppNotification, 'id' | 'createdAt' | 'read'>) => {
-    setNotifications((prev) => [
-      { ...n, id: crypto.randomUUID(), createdAt: new Date().toISOString(), read: false },
-      ...prev.slice(0, 49),
-    ])
-  }, [])
+  const { user } = useAuth()
+  const [notifications, setNotifications] = useState<DbNotification[]>([])
 
   useEffect(() => {
-    if (!user || !role) return
+    if (!user) return
+    let cancelled = false
 
-    // Load tickets the user owns so comment events can reference them
-    supabase
-      .from('tickets')
-      .select('id')
-      .eq('created_by', user.id)
-      .then(({ data }) => {
-        ownedTicketIds.current = new Set(data?.map((t) => t.id) ?? [])
-      })
-
-    const channels: ReturnType<typeof supabase.channel>[] = []
-
-    if (role === 'student' || role === 'staff') {
-      // Notify submitter when their ticket changes
-      const ch = supabase
-        .channel(`notifications:tickets:${user.id}`)
-        .on(
-          'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'tickets', filter: `created_by=eq.${user.id}` },
-          (payload) => {
-            const t = payload.new as TicketWithRelations
-            push({
-              type: 'status_changed',
-              title: 'Ticket updated',
-              body: `Your ticket status changed to "${String(t.status).replace('_', ' ')}"`,
-              ticketId: t.id,
-            })
-          }
-        )
-        .subscribe()
-      channels.push(ch)
+    async function load() {
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user!.id)
+        .order('created_at', { ascending: false })
+        .limit(30)
+      if (cancelled) return
+      setNotifications((data as DbNotification[]) ?? [])
     }
 
-    if (role === 'technician') {
-      // Notify technician when a ticket is assigned to them
-      const ch = supabase
-        .channel(`notifications:assigned:${user.id}`)
-        .on(
-          'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'tickets', filter: `assigned_to=eq.${user.id}` },
-          (payload) => {
-            const t = payload.new as TicketWithRelations
-            if (t.status === 'assigned') {
-              push({
-                type: 'ticket_assigned',
-                title: 'New ticket assigned',
-                body: `Ticket "${t.title}" has been assigned to you`,
-                ticketId: t.id,
-              })
-            }
-          }
-        )
-        .subscribe()
-      channels.push(ch)
-    }
+    load()
+    return () => { cancelled = true }
+  }, [user])
 
-    if (role === 'admin') {
-      // Notify admin when any new ticket is created
-      const ch = supabase
-        .channel(`notifications:admin:${user.id}`)
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'tickets' },
-          (payload) => {
-            const t = payload.new as TicketWithRelations
-            push({
-              type: 'ticket_created',
-              title: 'New ticket submitted',
-              body: `"${t.title}" — ${String(t.priority).toUpperCase()} priority`,
-              ticketId: t.id,
-            })
-          }
-        )
-        .subscribe()
-      channels.push(ch)
-    }
+  // Realtime: prepend new notifications as they arrive for this user
+  useEffect(() => {
+    if (!user) return
+    const channel = supabase
+      .channel(`notifications:${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          setNotifications((prev) => [payload.new as DbNotification, ...prev.slice(0, 29)])
+        }
+      )
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [user])
 
-    return () => {
-      channels.forEach((ch) => supabase.removeChannel(ch))
-    }
-  }, [user, role, push])
+  const markRead = useCallback(async (id: string) => {
+    const now = new Date().toISOString()
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read_at: now } : n)))
+    await supabase.from('notifications').update({ read_at: now }).eq('id', id)
+  }, [])
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const markAllRead = useCallback(async () => {
+    const now = new Date().toISOString()
+    setNotifications((prev) => prev.map((n) => ({ ...n, read_at: n.read_at ?? now })))
+    await supabase
+      .from('notifications')
+      .update({ read_at: now })
+      .eq('user_id', user?.id ?? '')
+      .is('read_at', null)
+  }, [user])
+
+  const unreadCount = notifications.filter((n) => !n.read_at).length
 
   return { notifications, unreadCount, markRead, markAllRead }
 }
