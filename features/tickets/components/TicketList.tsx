@@ -1,15 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import { useTickets } from '../hooks/useTickets'
 import { useBasePath } from '@/hooks/useBasePath'
 import { TicketCard } from './TicketCard'
 import { TicketFilters } from './TicketFilters'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
-import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 export function TicketList() {
-  const { tickets, isLoading } = useTickets()
+  const { tickets, isLoading, isLoadingMore, hasMore, loadMore } = useTickets()
   const base = useBasePath()
   const [statusFilter, setStatusFilter]     = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
@@ -29,11 +30,9 @@ export function TicketList() {
           onStatusChange={setStatusFilter}
           onPriorityChange={setPriorityFilter}
         />
-        {!isLoading && (
-          <span className="shrink-0 text-xs text-muted-foreground">
-            {filtered.length} ticket{filtered.length !== 1 ? 's' : ''}
-          </span>
-        )}
+        <span className="shrink-0 text-xs text-muted-foreground">
+          {filtered.length} ticket{filtered.length !== 1 ? 's' : ''}
+        </span>
       </div>
 
       {!filtered.length ? (
@@ -46,6 +45,14 @@ export function TicketList() {
           {filtered.map((t) => (
             <TicketCard key={t.id} ticket={t} basePath={base} />
           ))}
+        </div>
+      )}
+
+      {hasMore && !statusFilter && !priorityFilter && (
+        <div className="flex justify-center pt-2">
+          <Button variant="outline" size="sm" onClick={loadMore} disabled={isLoadingMore}>
+            {isLoadingMore ? 'Loading…' : 'Load more'}
+          </Button>
         </div>
       )}
     </div>

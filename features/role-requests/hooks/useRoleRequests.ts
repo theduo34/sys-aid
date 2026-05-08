@@ -7,6 +7,7 @@ import type { RoleRequestWithUser } from '../types/role-request.types'
 export function useRoleRequests() {
   const [requests, setRequests] = useState<RoleRequestWithUser[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError]       = useState<string | null>(null)
 
   useEffect(() => {
     supabase
@@ -14,11 +15,15 @@ export function useRoleRequests() {
       .select('*, user:profiles!user_id(id, full_name, role, department)')
       .eq('status', 'pending')
       .order('created_at', { ascending: true })
-      .then(({ data }) => {
-        setRequests((data as RoleRequestWithUser[]) ?? [])
+      .then(({ data, error: err }) => {
+        if (err) {
+          setError(err.message)
+        } else {
+          setRequests((data as RoleRequestWithUser[]) ?? [])
+        }
         setIsLoading(false)
       })
   }, [])
 
-  return { requests, isLoading, setRequests }
+  return { requests, isLoading, error, setRequests }
 }

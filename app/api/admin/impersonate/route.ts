@@ -38,6 +38,7 @@ export async function POST(req: Request) {
   const session: ImpersonationSession = {
     realAdminId: auth.user.id,
     targetUserId,
+    targetUserName: target.full_name,
     targetRole: target.role as ImpersonationSession['targetRole'],
     startedAt: new Date().toISOString(),
   }

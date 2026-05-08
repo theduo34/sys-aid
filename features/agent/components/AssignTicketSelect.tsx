@@ -6,6 +6,10 @@ import { assignTicket } from '@/features/tickets/actions/ticketActions'
 import { toast } from 'sonner'
 import type { Profile } from '@/types/types_db'
 
+const selectCls =
+  'rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground ' +
+  'focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer'
+
 interface AssignTicketSelectProps {
   ticketId: string
   currentAssignee?: string | null
@@ -13,26 +17,49 @@ interface AssignTicketSelectProps {
 
 export function AssignTicketSelect({ ticketId, currentAssignee }: AssignTicketSelectProps) {
   const [technicians, setTechnicians] = useState<Pick<Profile, 'id' | 'full_name'>[]>([])
+  const [prevProp, setPrevProp]       = useState(currentAssignee)
+  const [assignee, setAssignee]       = useState(currentAssignee ?? '')
+  const [saving, setSaving] = useState(false)
+
+  // Sync controlled value when the prop changes (e.g. via realtime reassignment)
+  if (prevProp !== currentAssignee) {
+    setPrevProp(currentAssignee)
+    setAssignee(currentAssignee ?? '')
+  }
 
   useEffect(() => {
     supabase
       .from('profiles')
       .select('id, full_name')
       .eq('role', 'technician')
+      .order('full_name')
       .then(({ data }) => setTechnicians(data ?? []))
   }, [])
 
   async function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const { error } = await assignTicket(ticketId, e.target.value)
-    if (error) toast.error('Failed to assign ticket.')
-    else toast.success('Ticket assigned.')
+    const value = e.target.value
+    setSaving(true)
+    try {
+      const { error } = await assignTicket(ticketId, value)
+      if (error) {
+        toast.error('Failed to assign ticket.')
+      } else {
+        setAssignee(value)
+        toast.success(value ? 'Ticket assigned.' : 'Assignment removed.')
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
     <select
-      defaultValue={currentAssignee ?? ''}
+      value={assignee}
       onChange={handleChange}
-      className="border border-border bg-background px-2 py-1 text-sm text-foreground"
+      disabled={saving}
+      className={selectCls}
     >
       <option value="">Unassigned</option>
       {technicians.map((t) => (

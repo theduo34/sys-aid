@@ -30,23 +30,27 @@ export function RequestStaffButton() {
     setIsSubmitting(true)
     const form = new FormData(e.currentTarget)
 
-    const res = await fetch('/api/role-requests', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reason: form.get('reason') }),
-    })
+    try {
+      const res  = await fetch('/api/role-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: form.get('reason') }),
+      })
+      let json: Record<string, unknown> = {}
+      try { json = await res.json() } catch { /* non-JSON response */ }
 
-    const json = await res.json()
-
-    if (!res.ok) {
-      toast.error(json.error ?? 'Could not submit request.')
-    } else {
-      toast.success('Request submitted. An admin will review it shortly.')
-      setSubmitted(true)
-      setIsOpen(false)
+      if (!res.ok) {
+        toast.error((json.error as string) ?? 'Could not submit request.')
+      } else {
+        toast.success('Request submitted. An admin will review it shortly.')
+        setSubmitted(true)
+        setIsOpen(false)
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setIsSubmitting(false)
   }
 
   if (!isOpen) {

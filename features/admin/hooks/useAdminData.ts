@@ -1,26 +1,43 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import type { Profile, Category } from '@/types/types_db'
 
-export function useAdminData() {
-  const [users, setUsers] = useState<Profile[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+async function fetchAdminData() {
+  const [usersRes, catsRes] = await Promise.all([
+    supabase.from('profiles').select('*').order('full_name'),
+    supabase.from('categories').select('*').order('name'),
+  ])
+  return {
+    users:      (usersRes.data ?? []) as Profile[],
+    categories: (catsRes.data ?? []) as Category[],
+  }
+}
 
-  useEffect(() => {
-    async function fetch() {
-      const [usersRes, catsRes] = await Promise.all([
-        supabase.from('profiles').select('*').order('full_name'),
-        supabase.from('categories').select('*').order('name'),
-      ])
-      setUsers(usersRes.data ?? [])
-      setCategories(catsRes.data ?? [])
-      setIsLoading(false)
-    }
-    fetch()
+export function useAdminData() {
+  const [users, setUsers]           = useState<Profile[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoading, setIsLoading]   = useState(true)
+
+  const refetch = useCallback(() => {
+    return fetchAdminData().then(({ users: u, categories: c }) => {
+      setUsers(u)
+      setCategories(c)
+    })
   }, [])
 
-  return { users, categories, isLoading }
+  useEffect(() => {
+    let cancelled = false
+    fetchAdminData().then(({ users: u, categories: c }) => {
+      if (!cancelled) {
+        setUsers(u)
+        setCategories(c)
+        setIsLoading(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  return { users, categories, isLoading, refetch }
 }

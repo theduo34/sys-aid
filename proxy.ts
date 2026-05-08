@@ -28,7 +28,12 @@ export async function proxy(request: NextRequest) {
         setAll: (cookiesToSet) => {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value)
-            response.cookies.set(name, value, options)
+            // Omit maxAge / expires → session cookies cleared when browser closes
+            response.cookies.set(name, value, {
+              ...options,
+              maxAge:  undefined,
+              expires: undefined,
+            })
           })
         },
       },
@@ -40,24 +45,17 @@ export async function proxy(request: NextRequest) {
 
   const isAuthPath  = AUTH_PATHS.some((p) => pathname.startsWith(p))
   const isRoleRoute = ROLE_ROUTE.test(pathname)
+  // API routes handle their own auth via requireRole — never redirect them
+  const isApiPath   = pathname.startsWith('/api/')
 
-  // Unauthenticated: block all non-auth paths
-  if (!user && !isAuthPath) {
+  // Unauthenticated: block all non-auth, non-api paths
+  if (!user && !isAuthPath && !isApiPath) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Authenticated on an auth page → send to their role-based dashboard
-  if (user && isAuthPath) {
-    const profile = await getProfile(supabase, user.id)
-    if (profile && VALID_ROLES.includes(profile.role)) {
-      return NextResponse.redirect(new URL(`/${profile.role}/${user.id}/dashboard`, request.url))
-    }
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
-  // Authenticated on a non-role route (old paths like /dashboard, /tickets, /knowledge-base, etc.)
+  // Authenticated on a non-role, non-api route (old paths like /dashboard, /tickets, etc.)
   // Redirect to their correct role-based URL so nothing 404s
-  if (user && !isRoleRoute && !isAuthPath) {
+  if (user && !isRoleRoute && !isAuthPath && !isApiPath) {
     const profile = await getProfile(supabase, user.id)
     if (profile && VALID_ROLES.includes(profile.role)) {
       return NextResponse.redirect(

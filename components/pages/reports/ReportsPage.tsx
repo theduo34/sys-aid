@@ -5,11 +5,23 @@ import { SLAComplianceCard } from '@/features/reports/components/SLAComplianceCa
 
 export function ReportsPage() {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      <SLAComplianceCard />
-      <CategoryBreakdown />
-      <VolumeChart />
-      <ResolutionTimeChart />
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="rounded-lg border border-border bg-card p-5">
+          <SLAComplianceCard />
+        </div>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <CategoryBreakdown />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="rounded-lg border border-border bg-card p-5">
+          <VolumeChart />
+        </div>
+        <div className="rounded-lg border border-border bg-card p-5">
+          <ResolutionTimeChart />
+        </div>
+      </div>
     </div>
   )
 }

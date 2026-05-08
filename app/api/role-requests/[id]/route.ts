@@ -3,10 +3,11 @@ import { requireRole } from '@/lib/supabase/requireRole'
 import { createClient } from '@/lib/supabase/server'
 import { reviewRoleRequestSchema } from '@/lib/validations/role-request'
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireRole(['admin'])
   if ('error' in auth) return auth.error
 
+  const { id } = await params
   const body = await req.json()
   const parsed = reviewRoleRequestSchema.safeParse(body)
   if (!parsed.success) {
@@ -18,7 +19,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   const { data: request } = await supabase
     .from('role_requests')
     .select('user_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!request) return NextResponse.json({ error: 'Request not found' }, { status: 404 })
@@ -26,7 +27,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   await supabase
     .from('role_requests')
     .update({ status: parsed.data.status, reviewed_by: auth.user.id, reviewed_at: new Date().toISOString() })
-    .eq('id', params.id)
+    .eq('id', id)
 
   if (parsed.data.status === 'approved') {
     await supabase

@@ -13,7 +13,12 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('style:', d.get\\('style'\\)\\); print\\('baseColor:', d.get\\('baseColor','n/a'\\)\\)\")",
       "Bash(bun shadcn:add sidebar dropdown-menu)",
       "Bash(grep -iE '^\\(User$|UserCircle|Person|BellSimple\\)')",
-      "Bash(grep *)"
+      "Bash(grep *)",
+      "Bash(bun add *)",
+      "Bash(bun shadcn:add dialog drawer tabs label select badge textarea --yes)",
+      "Bash(bun lint *)",
+      "Bash(bun build *)",
+      "Bash(Remove-Item *)"
     ]
   }
 }

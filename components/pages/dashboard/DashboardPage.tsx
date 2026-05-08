@@ -2,7 +2,25 @@ import { DashboardGreeting } from '@/features/dashboard/components/DashboardGree
 import { StatsCards } from '@/features/dashboard/components/StatsCards'
 import { QuickActions } from '@/features/dashboard/components/QuickActions'
 import { RecentTickets } from '@/features/dashboard/components/RecentTickets'
-import { PhoneIcon, BuildingOfficeIcon, ClockIcon } from '@phosphor-icons/react/dist/ssr'
+import {
+  PhoneIcon,
+  BuildingOfficeIcon,
+  ClockIcon,
+  ArrowSquareOutIcon,
+} from '@phosphor-icons/react/dist/ssr'
+
+const SLA_TARGETS = [
+  { label: 'P1 Critical', value: '4 hr',    dot: 'bg-destructive' },
+  { label: 'P2 High',     value: '24 hr',   dot: 'bg-warning' },
+  { label: 'P3 Medium',   value: '72 hr',   dot: 'bg-muted-foreground' },
+  { label: 'P4 Low',      value: '1 week',  dot: 'bg-muted-foreground' },
+]
+
+const SUPPORT_INFO = [
+  { icon: ClockIcon,           label: 'Hours',    value: 'Mon – Fri, 8:00 am – 5:00 pm' },
+  { icon: BuildingOfficeIcon,  label: 'Walk-in',  value: 'IT Help Desk, Block A, Room 101' },
+  { icon: PhoneIcon,           label: 'Emergency',value: 'Extension 1234' },
+]
 
 export function DashboardPage() {
   return (
@@ -12,73 +30,66 @@ export function DashboardPage() {
 
       <StatsCards />
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Recent Activity
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* Recent tickets — takes 2/3 */}
+        <div className="lg:col-span-2 rounded-xl border border-border bg-card p-5">
+          <RecentTickets />
+        </div>
 
-          <div className="md:col-span-2 rounded-lg border border-border bg-card p-5">
-            <RecentTickets />
-          </div>
-
-          <div className="rounded-lg border border-border bg-card p-5 flex flex-col gap-5">
-            <span className="text-sm font-semibold text-foreground">IT Support Info</span>
+        {/* Support info + SLA sidebar */}
+        <div className="flex flex-col gap-4">
+          <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-5">
+            <span className="text-sm font-semibold text-foreground">IT Support</span>
 
             <div className="flex flex-col gap-4">
-              <div className="flex items-start gap-3">
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted mt-0.5">
-                  <ClockIcon className="size-3.5 text-muted-foreground" />
+              {SUPPORT_INFO.map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex items-start gap-3">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <Icon className="size-3.5 text-muted-foreground" />
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      {label}
+                    </span>
+                    <span className="text-sm text-foreground">{value}</span>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Hours</span>
-                  <span className="text-sm text-foreground">Mon – Fri, 8:00 am – 5:00 pm</span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted mt-0.5">
-                  <BuildingOfficeIcon className="size-3.5 text-muted-foreground" />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Walk-in</span>
-                  <span className="text-sm text-foreground">IT Help Desk, Block A, Room 101</span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-muted mt-0.5">
-                  <PhoneIcon className="size-3.5 text-muted-foreground" />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Emergency</span>
-                  <span className="text-sm text-foreground">Extension 1234</span>
-                </div>
-              </div>
+              ))}
             </div>
 
-            <div className="border-t border-border pt-4 flex flex-col gap-2">
+            <div className="border-t border-border pt-4 flex flex-col gap-2.5">
               <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 SLA Targets
               </span>
               <div className="flex flex-col gap-2">
-                {[
-                  { label: 'P1 Critical', value: '4 hr' },
-                  { label: 'P2 High',     value: '24 hr' },
-                  { label: 'P3 Medium',   value: '72 hr' },
-                  { label: 'P4 Low',      value: '1 week' },
-                ].map(({ label, value }) => (
-                  <div key={label} className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{label}</span>
-                    <span className="font-medium text-foreground">{value}</span>
+                {SLA_TARGETS.map(({ label, value, dot }) => (
+                  <div key={label} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className={`size-1.5 rounded-full ${dot} shrink-0`} />
+                      <span className="text-xs text-muted-foreground">{label}</span>
+                    </div>
+                    <span className="text-xs font-semibold text-foreground tabular-nums">{value}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
+          {/* Quick link card */}
+          <a
+            href="https://www.ktu.edu.gh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4 hover:bg-muted/40 transition-colors group"
+          >
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium text-foreground">KTU Portal</span>
+              <span className="text-xs text-muted-foreground">University student portal</span>
+            </div>
+            <ArrowSquareOutIcon className="size-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
+          </a>
         </div>
-      </section>
+      </div>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">

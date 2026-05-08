@@ -4,6 +4,7 @@ import type { Role } from '@/lib/permissions'
 export interface ImpersonationSession {
   realAdminId: string
   targetUserId: string
+  targetUserName: string
   targetRole: Role
   startedAt: string
 }

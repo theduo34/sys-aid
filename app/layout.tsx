@@ -14,6 +14,15 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 export const metadata: Metadata = {
   title: { template: '%s | SysAid', default: 'SysAid' },
   description: 'University IT help desk ticketing platform',
+  icons: {
+    icon: [
+      { url: '/images/favicon.svg', type: 'image/svg+xml' },
+      { url: '/images/favicon-preview-64.png', sizes: '64x64', type: 'image/png' },
+      { url: '/images/favicon.ico', type: 'image/x-icon' },
+    ],
+    shortcut: '/images/favicon.ico',
+    apple: { url: '/images/favicon-preview-64.png', sizes: '64x64', type: 'image/png' },
+  },
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -28,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <AuthProvider>
             <TooltipProvider delayDuration={0}>
               {children}
-              <Toaster richColors />
+              <Toaster richColors position="top-center" />
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>

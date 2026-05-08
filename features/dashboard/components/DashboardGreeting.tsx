@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { PlusIcon } from '@phosphor-icons/react'
+import { PlusIcon, HeadsetIcon } from '@phosphor-icons/react'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import { useBasePath } from '@/hooks/useBasePath'
 import { Button } from '@/components/ui/button'
@@ -14,34 +14,68 @@ function getGreeting() {
   return 'Good evening'
 }
 
+const roleLabels: Record<string, string> = {
+  student:    'Student',
+  staff:      'Staff',
+  technician: 'Technician',
+  admin:      'Administrator',
+}
+
 export function DashboardGreeting() {
   const { profile, role } = useAuth()
   const base = useBasePath()
-  const firstName = profile?.full_name?.split(' ')[0] ?? ''
+  const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
   return (
-    <div className="rounded-lg border border-border bg-card px-6 py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col gap-1">
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          {getGreeting()}
-        </p>
-        <h1 className="text-2xl font-semibold text-foreground">
-          {firstName || 'Welcome back'}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Here&apos;s your IT support summary for today.
-        </p>
-      </div>
-      <div className="flex shrink-0 flex-wrap items-center gap-2">
-        {(role === 'student' || role === 'staff' || role === 'admin') && (
-          <Button asChild size="sm">
-            <Link href={`${base}/tickets/new`}>
-              <PlusIcon data-icon="inline-start" />
-              New Ticket
-            </Link>
-          </Button>
-        )}
-        <RequestStaffButton />
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card">
+      {/* Decorative grid pattern */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(0deg, var(--foreground) 0px, var(--foreground) 1px, transparent 1px, transparent 40px),' +
+            'repeating-linear-gradient(90deg, var(--foreground) 0px, var(--foreground) 1px, transparent 1px, transparent 40px)',
+        }}
+      />
+      {/* Glow accent */}
+      <div className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-foreground/5 blur-3xl" />
+
+      <div className="relative flex flex-col gap-5 px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-foreground shadow-sm">
+            <HeadsetIcon className="size-6 text-background" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              {getGreeting()}
+            </p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">
+              {firstName}
+            </h1>
+            <div className="flex items-center gap-2">
+              {role && (
+                <span className="inline-flex items-center rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                  {roleLabels[role] ?? role}
+                </span>
+              )}
+              {profile?.department && (
+                <span className="text-xs text-muted-foreground">{profile.department}</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {(role === 'student' || role === 'staff' || role === 'admin') && (
+            <Button asChild>
+              <Link href={`${base}/tickets/new`}>
+                <PlusIcon data-icon="inline-start" />
+                New Ticket
+              </Link>
+            </Button>
+          )}
+          <RequestStaffButton />
+        </div>
       </div>
     </div>
   )

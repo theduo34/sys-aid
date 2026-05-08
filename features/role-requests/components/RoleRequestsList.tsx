@@ -8,27 +8,35 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { useRoleRequests } from '../hooks/useRoleRequests'
 
 export function RoleRequestsList() {
-  const { requests, isLoading, setRequests } = useRoleRequests()
+  const { requests, isLoading, error, setRequests } = useRoleRequests()
   const [reviewingId, setReviewingId] = useState<string | null>(null)
 
   async function review(id: string, status: 'approved' | 'rejected') {
     setReviewingId(id)
-    const res = await fetch(`/api/role-requests/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
-    })
+    try {
+      const res  = await fetch(`/api/role-requests/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      })
+      let json: Record<string, unknown> = {}
+      try { json = await res.json() } catch { /* non-JSON response */ }
 
-    if (!res.ok) {
-      toast.error('Failed to update request.')
-    } else {
-      toast.success(status === 'approved' ? 'User promoted to staff.' : 'Request rejected.')
-      setRequests((prev) => prev.filter((r) => r.id !== id))
+      if (!res.ok) {
+        toast.error((json.error as string) ?? 'Failed to update request.')
+      } else {
+        toast.success(status === 'approved' ? 'User promoted to staff.' : 'Request rejected.')
+        setRequests((prev) => prev.filter((r) => r.id !== id))
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.')
+    } finally {
+      setReviewingId(null)
     }
-    setReviewingId(null)
   }
 
   if (isLoading) return <LoadingSpinner />
+  if (error) return <p className="text-xs text-destructive">{error}</p>
   if (!requests.length) return <EmptyState message="No pending role requests." />
 
   return (

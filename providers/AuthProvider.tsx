@@ -5,6 +5,10 @@ import { supabase } from '@/lib/supabase/client'
 import type { Profile } from '@/types/types_db'
 import type { User } from '@supabase/supabase-js'
 
+const TAB_KEY = 'sysaid_tab'
+
+const AUTH_PATHS = ['/login', '/register', '/forgot-password']
+
 interface AuthContext {
   user: User | null
   profile: Profile | null
@@ -19,20 +23,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_, session) => {
-      setUser(session?.user ?? null)
-
-      if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        setProfile(data)
-      } else {
-        setProfile(null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Cookies from another tab carry a valid session here, but this tab hasn't
+      // gone through login — redirect without signing out so the other tab is unaffected.
+      if (event === 'INITIAL_SESSION' && session && !sessionStorage.getItem(TAB_KEY)) {
+        setIsLoading(false)
+        const onAuthPage = AUTH_PATHS.some((p) => window.location.pathname.startsWith(p))
+        if (!onAuthPage) window.location.replace('/login')
+        return
       }
 
+      if (event === 'SIGNED_OUT' || !session) {
+        sessionStorage.removeItem(TAB_KEY)
+        setUser(null)
+        setProfile(null)
+        setIsLoading(false)
+        if (!window.location.pathname.startsWith('/login')) {
+          window.location.replace('/login')
+        }
+        return
+      }
+
+      if (event === 'SIGNED_IN') {
+        sessionStorage.setItem(TAB_KEY, '1')
+      }
+
+      setUser(session.user)
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+      setProfile(data)
       setIsLoading(false)
     })
 

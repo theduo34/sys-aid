@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   BellSimpleIcon,
   WarningIcon,
   UserCircleIcon,
-  GearIcon,
   SignOutIcon,
   SunIcon,
   MoonIcon,
@@ -25,19 +23,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
+import { ResponsiveModal } from '@/components/shared/ResponsiveModal'
+import { ProfileForm } from '@/features/auth/components/ProfileForm'
 import { useAuth } from '@/features/auth/hooks/useAuth'
-import { useBasePath } from '@/hooks/useBasePath'
+import { useNotifications } from '@/features/notifications/hooks/useNotifications'
+import { NotificationPanel } from '@/features/notifications/components/NotificationPanel'
 import type { ImpersonationSession } from '@/lib/impersonation'
 
 const segmentLabels: Record<string, string> = {
-  'dashboard':      'Dashboard',
-  'tickets':        'My Tickets',
-  'knowledge-base': 'Knowledge Base',
-  'queue':          'Ticket Queue',
-  'users':          'Users',
-  'categories':     'Categories',
-  'departments':    'Departments',
-  'reports':        'Reports',
+  dashboard:       'Dashboard',
+  tickets:         'My Tickets',
+  'knowledge-base':'Knowledge Base',
+  queue:           'Ticket Queue',
+  users:           'Users',
+  categories:      'Categories',
+  departments:     'Departments',
+  reports:         'Reports',
+  profile:         'My Profile',
 }
 
 function getRouteLabel(pathname: string): string {
@@ -59,12 +61,13 @@ interface TopbarProps {
 
 export function Topbar({ impersonationSession }: TopbarProps) {
   const pathname = usePathname()
-  const router = useRouter()
+  const router   = useRouter()
   const { profile, user, signOut } = useAuth()
   const { resolvedTheme, setTheme } = useTheme()
-  const base = useBasePath()
-  const [notifOpen,   setNotifOpen]   = useState(false)
-  const [confirmOpen, setConfirmOpen] = useState(false)
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
+  const [notifOpen,    setNotifOpen]   = useState(false)
+  const [confirmOpen,  setConfirmOpen] = useState(false)
+  const [profileOpen,  setProfileOpen] = useState(false)
 
   const initials = (profile?.full_name ?? '?')
     .split(' ')
@@ -81,8 +84,7 @@ export function Topbar({ impersonationSession }: TopbarProps) {
   }
 
   const parts = pathname.split('/').filter(Boolean)
-  // parts: [role, uuid, page, subPage?]
-  const isSubPage = parts.length >= 4
+  const isSubPage  = parts.length >= 4
   const parentPath = `/${parts.slice(0, 3).join('/')}`
 
   return (
@@ -93,7 +95,9 @@ export function Topbar({ impersonationSession }: TopbarProps) {
             <div className="flex items-center gap-2">
               <WarningIcon className="size-4 shrink-0" />
               <span>
-                Viewing as <strong>{impersonationSession.targetUserId}</strong> ({impersonationSession.targetRole})
+                Viewing as{' '}
+                <strong>{impersonationSession.targetUserName}</strong>{' '}
+                ({impersonationSession.targetRole})
               </span>
             </div>
             <Button size="sm" variant="outline" onClick={handleStopImpersonation}>
@@ -119,12 +123,18 @@ export function Topbar({ impersonationSession }: TopbarProps) {
 
           <div className="flex-1" />
 
+          {/* Notification bell */}
           <button
             onClick={() => setNotifOpen(true)}
-            className="relative text-muted-foreground hover:text-foreground transition-colors me-2"
+            className="relative p-1 text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Notifications"
           >
             <BellSimpleIcon className="size-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </button>
 
           <DropdownMenu>
@@ -141,22 +151,17 @@ export function Topbar({ impersonationSession }: TopbarProps) {
               <div className="px-2 py-1.5 mb-1">
                 <p className="text-sm font-semibold text-foreground truncate">{profile?.full_name}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                <p className="text-xs text-muted-foreground capitalize">{profile?.role}</p>
               </div>
 
               <DropdownMenuSeparator className="my-1" />
 
-              <DropdownMenuItem asChild className="cursor-pointer rounded-md gap-2">
-                <Link href={`${base}/profile`}>
-                  <UserCircleIcon className="size-4" />
-                  My Profile
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild className="cursor-pointer rounded-md gap-2">
-                <Link href={`${base}/settings`}>
-                  <GearIcon className="size-4" />
-                  Settings
-                </Link>
+              <DropdownMenuItem
+                className="cursor-pointer rounded-md gap-2"
+                onClick={() => setProfileOpen(true)}
+              >
+                <UserCircleIcon className="size-4" />
+                My Profile
               </DropdownMenuItem>
 
               <DropdownMenuItem
@@ -184,14 +189,17 @@ export function Topbar({ impersonationSession }: TopbarProps) {
       </header>
 
       <Sheet open={notifOpen} onOpenChange={setNotifOpen}>
-        <SheetContent side="right" className="w-80 sm:w-96">
-          <SheetHeader className="border-b border-border pb-4">
+        <SheetContent side="right" className="w-80 sm:w-96 flex flex-col">
+          <SheetHeader className="border-b border-border pb-4 shrink-0">
             <SheetTitle className="text-base">Notifications</SheetTitle>
           </SheetHeader>
-          <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-            <BellSimpleIcon className="size-8 text-muted-foreground/40" />
-            <p className="text-sm font-medium text-foreground">All caught up</p>
-            <p className="text-xs text-muted-foreground">No new notifications right now.</p>
+          <div className="flex-1 overflow-y-auto py-4">
+            <NotificationPanel
+              notifications={notifications}
+              onMarkAllRead={markAllRead}
+              onMarkRead={markRead}
+              onClose={() => setNotifOpen(false)}
+            />
           </div>
         </SheetContent>
       </Sheet>
@@ -206,6 +214,15 @@ export function Topbar({ impersonationSession }: TopbarProps) {
         onConfirm={signOut}
         onCancel={() => setConfirmOpen(false)}
       />
+
+      <ResponsiveModal
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        title="My Profile"
+        description="Update your display name, department, or student ID."
+      >
+        <ProfileForm onSaved={() => setProfileOpen(false)} />
+      </ResponsiveModal>
     </>
   )
 }

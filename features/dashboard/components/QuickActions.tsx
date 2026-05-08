@@ -10,7 +10,6 @@ import {
 } from '@phosphor-icons/react'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import { useBasePath } from '@/hooks/useBasePath'
-import { cn } from '@/lib/utils'
 import type { Role } from '@/lib/permissions'
 
 interface ActionItem {

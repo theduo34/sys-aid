@@ -25,29 +25,34 @@ export function CreateUserForm() {
     e.preventDefault()
     setIsSubmitting(true)
     setTempPassword(null)
-    const form = new FormData(e.currentTarget)
+    const formEl = e.currentTarget
+    const form   = new FormData(formEl)
 
-    const res = await fetch('/api/admin/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: form.get('email'),
-        full_name: form.get('full_name'),
-        role: selectedRole,
-      }),
-    })
+    try {
+      const res  = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email:     form.get('email'),
+          full_name: form.get('full_name'),
+          role:      selectedRole,
+        }),
+      })
+      let json: Record<string, unknown> = {}
+      try { json = await res.json() } catch { /* non-JSON response */ }
 
-    const json = await res.json()
-
-    if (!res.ok) {
-      toast.error(json.error ?? 'Failed to create account.')
-    } else {
-      setTempPassword(json.data.tempPassword)
-      toast.success(`${roleLabels[selectedRole]} account created.`)
-      e.currentTarget.reset()
+      if (!res.ok) {
+        toast.error((json.error as string) ?? 'Failed to create account.')
+      } else {
+        setTempPassword((json.data as { tempPassword: string })?.tempPassword ?? null)
+        toast.success(`${roleLabels[selectedRole]} account created.`)
+        formEl.reset()
+      }
+    } catch {
+      toast.error('Something went wrong. Please try again.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setIsSubmitting(false)
   }
 
   return (

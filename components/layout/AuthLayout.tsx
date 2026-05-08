@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr'
+import { ArrowLeftIcon, HeadsetIcon } from '@phosphor-icons/react/dist/ssr'
 
 interface AuthLayoutProps {
   heading: string
@@ -65,8 +65,8 @@ export function AuthLayout({ heading, subtext, subtextLink, children }: AuthLayo
         <div className="relative z-10 w-full max-w-md flex flex-col gap-8">
 
           <div className="flex flex-col items-center gap-5">
-            <div className="size-10 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
-              <span className="text-sm font-bold text-foreground tracking-tighter">SA</span>
+            <div className="flex size-12 items-center justify-center rounded-xl bg-foreground shrink-0">
+              <HeadsetIcon className="size-6 text-background" />
             </div>
             <div className="flex flex-col items-center gap-2 text-center">
               <h1 className="text-[22px] font-semibold tracking-tight text-foreground">

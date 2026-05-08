@@ -1,17 +1,27 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
+import { useAuth } from '@/features/auth/hooks/useAuth'
 import { AuthInput } from './AuthInput'
 import { AuthButton } from './AuthButton'
 
 export function LoginForm() {
   const router = useRouter()
+  const { user, profile, isLoading: authLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [isValid, setIsValid] = useState(false)
+
+  // If this tab already completed login (has the sessionStorage marker), go to dashboard
+  useEffect(() => {
+    if (authLoading) return
+    if (user && profile && sessionStorage.getItem('sysaid_tab')) {
+      router.replace(`/${profile.role}/${user.id}/dashboard`)
+    }
+  }, [authLoading, user, profile, router])
 
   function handleChange(e: React.FormEvent<HTMLFormElement>) {
     setIsValid(e.currentTarget.checkValidity())
