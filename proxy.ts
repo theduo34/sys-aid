@@ -4,7 +4,6 @@ import { NextResponse, type NextRequest } from 'next/server'
 const AUTH_PATHS = ['/login', '/register', '/forgot-password']
 const VALID_ROLES = ['student', 'staff', 'technician', 'admin']
 
-// Matches /{role}/{uuid}/... — the only protected route structure
 const ROLE_ROUTE = /^\/(student|staff|technician|admin)\/[0-9a-f-]{36}(\/.*)?$/
 
 async function getProfile(supabase: ReturnType<typeof createServerClient>, userId: string) {
@@ -28,7 +27,6 @@ export async function proxy(request: NextRequest) {
         setAll: (cookiesToSet) => {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value)
-            // Omit maxAge / expires → session cookies cleared when browser closes
             response.cookies.set(name, value, {
               ...options,
               maxAge:  undefined,
@@ -43,18 +41,16 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  const isAuthPath  = AUTH_PATHS.some((p) => pathname.startsWith(p))
-  const isRoleRoute = ROLE_ROUTE.test(pathname)
-  // API routes handle their own auth via requireRole — never redirect them
-  const isApiPath   = pathname.startsWith('/api/')
+  const isAuthPath   = AUTH_PATHS.some((p) => pathname.startsWith(p))
+  const isRoleRoute  = ROLE_ROUTE.test(pathname)
+  const isApiPath    = pathname.startsWith('/api/')
+  const isLandingPage = pathname === '/'
 
-  // Unauthenticated: block all non-auth, non-api paths
-  if (!user && !isAuthPath && !isApiPath) {
+  if (!user && !isAuthPath && !isApiPath && !isLandingPage) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // Authenticated on a non-role, non-api route (old paths like /dashboard, /tickets, etc.)
-  // Redirect to their correct role-based URL so nothing 404s
   if (user && !isRoleRoute && !isAuthPath && !isApiPath) {
     const profile = await getProfile(supabase, user.id)
     if (profile && VALID_ROLES.includes(profile.role)) {

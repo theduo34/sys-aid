@@ -14,9 +14,9 @@ export function ArticleList() {
   if (!articles.length) return <EmptyState message="No articles published yet." />
 
   return (
-    <div className="flex flex-col gap-2">
-      {articles.map((a) => (
-        <ArticleCard key={a.id} article={a} basePath={base} />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      {articles.map((a, i) => (
+        <ArticleCard key={a.id} article={a} basePath={base} index={i} />
       ))}
     </div>
   )

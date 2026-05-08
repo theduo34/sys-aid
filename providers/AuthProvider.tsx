@@ -56,16 +56,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Derive a stable primitive so the effect only re-runs when the user ID changes,
+  // not on every reference change (e.g. token refresh creating a new user object).
+  const userId = user?.id
+
   // Fetch profile whenever the authenticated user ID changes
   useEffect(() => {
-    if (!user) return
+    if (!userId) return
     let cancelled = false
 
     async function fetchProfile() {
       const { data } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user!.id)
+        .eq('id', userId)
         .single()
       if (!cancelled) {
         setProfile(data)
@@ -75,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     fetchProfile()
     return () => { cancelled = true }
-  }, [user?.id])
+  }, [userId])
 
   return (
     <AuthContext.Provider value={{ user, profile, isLoading }}>

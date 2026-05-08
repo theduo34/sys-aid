@@ -1,16 +1,64 @@
 import Link from 'next/link'
+import { ArrowRightIcon, ClockIcon } from '@phosphor-icons/react/dist/ssr'
 import type { KnowledgeArticle } from '@/types/types_db'
+
+const ACCENTS = [
+  'border-t-destructive/60',
+  'border-t-warning/80',
+  'border-t-primary/40',
+]
+
+function readingTime(body: string): number {
+  return Math.max(1, Math.ceil(body.trim().split(/\s+/).length / 200))
+}
+
+function makeExcerpt(body: string, max = 110): string {
+  const plain = body.replace(/^#{1,6}\s+/gm, '').replace(/[*_`\[\]]/g, '').trim()
+  return plain.length > max ? plain.slice(0, max).trimEnd() + '…' : plain
+}
 
 interface ArticleCardProps {
   article: KnowledgeArticle
   basePath: string
+  index?: number
 }
 
-export function ArticleCard({ article, basePath }: ArticleCardProps) {
+export function ArticleCard({ article, basePath, index = 0 }: ArticleCardProps) {
+  const accent = ACCENTS[index % ACCENTS.length]
+  const mins   = readingTime(article.body ?? '')
+  const excerpt = makeExcerpt(article.body ?? '')
+  const date    = new Date(article.created_at).toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  })
+
   return (
-    <Link href={`${basePath}/knowledge-base/${article.slug}`} className="flex flex-col gap-1 border border-border p-4 hover:bg-muted/50">
-      <span className="text-sm font-medium text-foreground">{article.title}</span>
-      <span className="text-xs text-muted-foreground">{new Date(article.created_at).toLocaleDateString()}</span>
+    <Link
+      href={`${basePath}/knowledge-base/${article.slug}`}
+      className={[
+        'group flex flex-col gap-3 rounded-xl border-t-2 border border-border bg-card p-5',
+        'hover:shadow-md hover:border-border/60 transition-all duration-200',
+        accent,
+      ].join(' ')}
+      style={{ animationFillMode: 'both' }}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="text-sm font-semibold text-foreground leading-snug group-hover:text-primary transition-colors line-clamp-2">
+          {article.title}
+        </h3>
+        <ArrowRightIcon className="size-4 shrink-0 mt-0.5 text-muted-foreground/30 translate-x-0 group-hover:translate-x-1 group-hover:text-muted-foreground transition-all duration-200" />
+      </div>
+
+      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+        {excerpt}
+      </p>
+
+      <div className="flex items-center gap-3 text-[10px] text-muted-foreground/50 mt-auto pt-1 border-t border-border/50">
+        <span className="flex items-center gap-1">
+          <ClockIcon className="size-3" />
+          {mins} min read
+        </span>
+        <span>{date}</span>
+      </div>
     </Link>
   )
 }
