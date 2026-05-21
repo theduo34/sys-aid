@@ -92,7 +92,7 @@ export function LandingPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur-md"
+        className="sticky top-0 z-40 border-b border-border/50  backdrop-blur-md"
       >
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-2">

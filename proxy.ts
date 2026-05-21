@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const AUTH_PATHS = ['/login', '/register', '/forgot-password']
+const AUTH_PATHS = ['/login', '/register', '/forgot-password', '/verify']
 const VALID_ROLES = ['student', 'staff', 'technician', 'admin']
 
 const ROLE_ROUTE = /^\/(student|staff|technician|admin)\/[0-9a-f-]{36}(\/.*)?$/

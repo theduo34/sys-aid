@@ -22,7 +22,8 @@
       "Bash(Get-ChildItem \"C:\\\\Users\\\\School\\\\KTU\\\\sys-aid\\\\features\\\\notifications\\\\types\" -ErrorAction SilentlyContinue)",
       "Bash(Select-Object Name)",
       "Bash(npx tsc *)",
-      "Bash(bunx supabase *)"
+      "Bash(bunx supabase *)",
+      "Bash(Get-Content \"C:\\\\Users\\\\School\\\\KTU\\\\sys-aid\\\\supabase\\\\email-templates\\\\confirm-signup.html\" -TotalCount 5)"
     ]
   }
 }

@@ -37,8 +37,8 @@ function CornerDecoration({ position, width, height }: CornerDecorationProps) {
             'repeating-linear-gradient(45deg,  oklch(1 0 0 / 60%) 0px, oklch(1 0 0 / 60%) 1px, transparent 1px, transparent 14px)',
             'repeating-linear-gradient(-45deg, oklch(1 0 0 / 60%) 0px, oklch(1 0 0 / 60%) 1px, transparent 1px, transparent 14px)',
           ].join(','),
-          maskImage: `radial-gradient(ellipse at ${at}, black 0%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.2) 55%, transparent 72%)`,
-          WebkitMaskImage: `radial-gradient(ellipse at ${at}, black 0%, rgba(0,0,0,0.7) 30%, rgba(0,0,0,0.2) 55%, transparent 72%)`,
+          maskImage: `radial-gradient(ellipse at ${at}, black 0%, rgba(0,0,0,0.65) 30%, rgba(0,0,0,0.2) 55%, transparent 72%)`,
+          WebkitMaskImage: `radial-gradient(ellipse at ${at}, black 0%, rgba(0,0,0,0.65) 30%, rgba(0,0,0,0.2) 55%, transparent 72%)`,
         }}
       />
     </div>
@@ -48,7 +48,7 @@ function CornerDecoration({ position, width, height }: CornerDecorationProps) {
 export function AuthLayout({ heading, subtext, subtextLink, children }: AuthLayoutProps) {
   return (
     <div className="dark">
-      <div className="relative min-h-screen overflow-hidden bg-background font-sans flex flex-col items-center justify-center px-4 py-16">
+    <div className="relative min-h-screen overflow-hidden bg-background font-sans flex flex-col items-center justify-center px-4 py-16">
 
         <Link
           href="/"
