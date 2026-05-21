@@ -27,15 +27,23 @@ function CornerDecoration({ position, width, height }: CornerDecorationProps) {
       <div
         className="absolute inset-0"
         style={{
-          background: `radial-gradient(ellipse at ${at}, oklch(0.78 0 0) 0%, oklch(0.55 0 0) 22%, oklch(0.32 0 0) 45%, oklch(0.18 0 0) 65%, transparent 80%)`,
+          background: [
+            `radial-gradient(ellipse at ${at},`,
+            `  color-mix(in oklch, var(--foreground) 22%, transparent)  0%,`,
+            `  color-mix(in oklch, var(--foreground) 14%, transparent) 22%,`,
+            `  color-mix(in oklch, var(--foreground)  7%, transparent) 45%,`,
+            `  color-mix(in oklch, var(--foreground)  3%, transparent) 65%,`,
+            `  transparent 80%`,
+            `)`,
+          ].join(' '),
         }}
       />
       <div
         className="absolute inset-0"
         style={{
           backgroundImage: [
-            'repeating-linear-gradient(45deg,  oklch(1 0 0 / 60%) 0px, oklch(1 0 0 / 60%) 1px, transparent 1px, transparent 14px)',
-            'repeating-linear-gradient(-45deg, oklch(1 0 0 / 60%) 0px, oklch(1 0 0 / 60%) 1px, transparent 1px, transparent 14px)',
+            'repeating-linear-gradient(45deg,  color-mix(in oklch, var(--foreground) 8%, transparent) 0px, color-mix(in oklch, var(--foreground) 8%, transparent) 1px, transparent 1px, transparent 14px)',
+            'repeating-linear-gradient(-45deg, color-mix(in oklch, var(--foreground) 8%, transparent) 0px, color-mix(in oklch, var(--foreground) 8%, transparent) 1px, transparent 1px, transparent 14px)',
           ].join(','),
           maskImage: `radial-gradient(ellipse at ${at}, black 0%, rgba(0,0,0,0.65) 30%, rgba(0,0,0,0.2) 55%, transparent 72%)`,
           WebkitMaskImage: `radial-gradient(ellipse at ${at}, black 0%, rgba(0,0,0,0.65) 30%, rgba(0,0,0,0.2) 55%, transparent 72%)`,
@@ -47,7 +55,7 @@ function CornerDecoration({ position, width, height }: CornerDecorationProps) {
 
 export function AuthLayout({ heading, subtext, subtextLink, children }: AuthLayoutProps) {
   return (
-    <div className="dark">
+    <div className="force-light">
     <div className="relative min-h-screen overflow-hidden bg-background font-sans flex flex-col items-center justify-center px-4 py-16">
 
         <Link

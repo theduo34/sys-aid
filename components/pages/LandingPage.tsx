@@ -85,7 +85,7 @@ const STATS = [
 // ── Component ─────────────────────────────────────────────────────────────────
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="force-light min-h-screen bg-background text-foreground flex flex-col">
 
       {/* ── Nav ─────────────────────────────────────────────────────────────── */}
       <motion.nav
