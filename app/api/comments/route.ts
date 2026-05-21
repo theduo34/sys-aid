@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
   const { data: ticket } = await supabase
     .from('tickets')
-    .select('created_by, title')
+    .select('created_by, assigned_to, title')
     .eq('id', ticket_id)
     .single()
 
@@ -42,14 +42,59 @@ export async function POST(req: Request) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  if (!is_internal && ticket && ticket.created_by !== auth.effectiveUserId) {
-    await createNotification({
-      userId: ticket.created_by,
-      type:   'comment_added',
-      title:  'New reply on your ticket',
-      body:   body.slice(0, 120),
-      link:   `tickets/${ticket_id}`,
-    })
+  if (ticket) {
+    if (is_internal) {
+      // Internal note: technician → notify all admins; admin → notify assigned technician
+      if (auth.effectiveRole === 'technician') {
+        const { data: admins } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('role', 'admin')
+
+        for (const admin of admins ?? []) {
+          if (admin.id !== auth.effectiveUserId) {
+            await createNotification({
+              userId: admin.id,
+              type:   'internal_note',
+              title:  'Internal note added',
+              body:   `On "${ticket.title}": ${body.slice(0, 100)}`,
+              link:   `tickets/${ticket_id}`,
+            })
+          }
+        }
+      } else if (auth.effectiveRole === 'admin' && ticket.assigned_to && ticket.assigned_to !== auth.effectiveUserId) {
+        await createNotification({
+          userId: ticket.assigned_to,
+          type:   'internal_note',
+          title:  'New internal note on your ticket',
+          body:   `On "${ticket.title}": ${body.slice(0, 100)}`,
+          link:   `tickets/${ticket_id}`,
+        })
+      }
+    } else {
+      // Public comment: notify the other party in the conversation
+      const isCreator = auth.effectiveUserId === ticket.created_by
+
+      if (isCreator && ticket.assigned_to) {
+        // Creator replied → notify assigned technician
+        await createNotification({
+          userId: ticket.assigned_to,
+          type:   'comment_added',
+          title:  'Customer replied on a ticket',
+          body:   `"${ticket.title}": ${body.slice(0, 100)}`,
+          link:   `tickets/${ticket_id}`,
+        })
+      } else if (!isCreator) {
+        // Technician or admin commented → notify ticket creator
+        await createNotification({
+          userId: ticket.created_by,
+          type:   'comment_added',
+          title:  'New reply on your ticket',
+          body:   body.slice(0, 120),
+          link:   `tickets/${ticket_id}`,
+        })
+      }
+    }
   }
 
   return NextResponse.json({ data }, { status: 201 })

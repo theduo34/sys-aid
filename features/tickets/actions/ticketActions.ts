@@ -59,7 +59,7 @@ export async function createTicket(data: CreateTicketInput, userRole: Role) {
   const slaHours = SLA_HOURS[priority].resolution
   const sla_deadline = new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString()
 
-  const assignee = await findAutoAssignee(supabase, data.category_id)
+  const assignee = data.assigned_to ?? await findAutoAssignee(supabase, data.category_id)
   const status = assignee ? 'assigned' : 'open'
 
   const { data: ticket, error } = await supabase
@@ -115,6 +115,13 @@ export async function updateTicket(id: string, updates: UpdateTicketInput) {
 
 export async function assignTicket(ticketId: string, technicianId: string) {
   const supabase = await createClient()
+
+  const { data: existing } = await supabase
+    .from('tickets')
+    .select('title')
+    .eq('id', ticketId)
+    .single()
+
   const { data, error } = await supabase
     .from('tickets')
     .update({ assigned_to: technicianId, status: 'assigned' })
@@ -122,17 +129,44 @@ export async function assignTicket(ticketId: string, technicianId: string) {
     .select()
     .single()
 
+  if (!error && existing) {
+    await createNotification({
+      userId: technicianId,
+      type:   'ticket_assigned',
+      title:  'Ticket assigned to you',
+      body:   `"${existing.title}" has been assigned to you.`,
+      link:   `queue`,
+    })
+  }
+
   return { data, error }
 }
 
 export async function resolveTicket(ticketId: string) {
   const supabase = await createClient()
+
+  const { data: existing } = await supabase
+    .from('tickets')
+    .select('title, created_by')
+    .eq('id', ticketId)
+    .single()
+
   const { data, error } = await supabase
     .from('tickets')
     .update({ status: 'resolved', resolved_at: new Date().toISOString() })
     .eq('id', ticketId)
     .select()
     .single()
+
+  if (!error && existing) {
+    await createNotification({
+      userId: existing.created_by,
+      type:   'ticket_resolved',
+      title:  'Your ticket has been resolved',
+      body:   `"${existing.title}" has been marked as resolved. You can close it or re-open if the issue persists.`,
+      link:   `tickets/${ticketId}`,
+    })
+  }
 
   return { data, error }
 }

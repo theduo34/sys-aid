@@ -7,30 +7,40 @@ import type { DbNotification } from '../types/notification.types'
 
 export type { DbNotification }
 
+const INITIAL_SIZE = 10
+const PAGE_SIZE    = 10
+
 export function useNotifications() {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<DbNotification[]>([])
+  const [hasMore, setHasMore]             = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [limit, setLimit]                 = useState(INITIAL_SIZE)
 
+  // Re-fetch whenever user or limit changes
   useEffect(() => {
     if (!user) return
     let cancelled = false
 
     async function load() {
-      const { data } = await supabase
+      const { data, count } = await supabase
         .from('notifications')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false })
-        .limit(30)
+        .limit(limit)
+
       if (cancelled) return
       setNotifications((data as DbNotification[]) ?? [])
+      setHasMore((count ?? 0) > limit)
+      setIsLoadingMore(false)
     }
 
     load()
     return () => { cancelled = true }
-  }, [user])
+  }, [user, limit])
 
-  // Realtime: prepend new notifications as they arrive for this user
+  // Realtime: prepend new notifications as they arrive
   useEffect(() => {
     if (!user) return
     const channel = supabase
@@ -39,7 +49,7 @@ export function useNotifications() {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
         (payload) => {
-          setNotifications((prev) => [payload.new as DbNotification, ...prev.slice(0, 29)])
+          setNotifications((prev) => [payload.new as DbNotification, ...prev])
         }
       )
       .subscribe()
@@ -62,7 +72,12 @@ export function useNotifications() {
       .is('read_at', null)
   }, [user])
 
+  const loadMore = useCallback(() => {
+    setIsLoadingMore(true)
+    setLimit((l) => l + PAGE_SIZE)
+  }, [])
+
   const unreadCount = notifications.filter((n) => !n.read_at).length
 
-  return { notifications, unreadCount, markRead, markAllRead }
+  return { notifications, hasMore, isLoadingMore, loadMore, unreadCount, markRead, markAllRead }
 }

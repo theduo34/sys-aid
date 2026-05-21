@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useAuth } from '@/features/auth/hooks/useAuth'
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { FileUpload } from '@/components/builders/FileUpload'
 import { PRIORITIES } from '@/lib/constants'
 import type { Priority } from '@/lib/constants'
+import type { Profile } from '@/types/types_db'
 
 const fieldCls =
   'w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground ' +
@@ -44,6 +45,17 @@ export function TicketForm() {
   const [priority, setPriority] = useState<Priority>(
     roleDefaultPriority[role ?? 'student'] ?? 'medium'
   )
+  const [assignedTo, setAssignedTo] = useState<string>('')
+  const [technicians, setTechnicians] = useState<Pick<Profile, 'id' | 'full_name'>[]>([])
+
+  useEffect(() => {
+    supabase
+      .from('profiles')
+      .select('id, full_name')
+      .eq('role', 'technician')
+      .order('full_name')
+      .then(({ data }) => setTechnicians(data ?? []))
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -75,6 +87,7 @@ export function TicketForm() {
           category_id:    categoryId || null,
           priority,
           attachment_url: attachmentUrl,
+          assigned_to:    assignedTo || null,
         },
         role
       )
@@ -141,6 +154,24 @@ export function TicketForm() {
             <p className="text-xs text-muted-foreground">Staff tickets default to High priority.</p>
           )}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="assigned_to" className={labelCls}>Assign to technician</label>
+        <select
+          id="assigned_to"
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
+          className={fieldCls}
+        >
+          <option value="">— Auto-assign —</option>
+          {technicians.map((t) => (
+            <option key={t.id} value={t.id}>{t.full_name}</option>
+          ))}
+        </select>
+        <p className="text-xs text-muted-foreground">
+          Leave blank to auto-assign based on category and workload.
+        </p>
       </div>
 
       <div className="flex flex-col gap-1.5">

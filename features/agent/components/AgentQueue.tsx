@@ -5,13 +5,33 @@ import { useAgentQueue } from '../hooks/useAgentQueue'
 import { useBasePath } from '@/hooks/useBasePath'
 import { useAuth } from '@/features/auth/hooks/useAuth'
 import { TicketCard } from '@/features/tickets/components/TicketCard'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { useCategories } from '@/features/tickets/hooks/useCategories'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { TICKET_STATUSES, PRIORITIES } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import type { TicketStatus, Priority } from '@/lib/constants'
+
+function TicketCardSkeleton() {
+  return (
+    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <Skeleton className="h-4 w-3/4 rounded" />
+        <div className="flex shrink-0 items-center gap-1.5">
+          <Skeleton className="h-5 w-12 rounded-full" />
+          <Skeleton className="h-5 w-16 rounded-full" />
+        </div>
+      </div>
+      <Skeleton className="h-3 w-2/3 rounded" />
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-3 w-20 rounded" />
+        <Skeleton className="h-3 w-1 rounded-full" />
+        <Skeleton className="h-3 w-24 rounded" />
+      </div>
+    </div>
+  )
+}
 
 export function AgentQueue() {
   const { tickets, isLoading, isLoadingMore, hasMore, loadMore } = useAgentQueue()
@@ -39,34 +59,48 @@ export function AgentQueue() {
     'h-8 rounded-md border border-border bg-card px-2.5 text-xs text-foreground ' +
     'focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer'
 
-  if (isLoading) return <LoadingSpinner />
+  const filterBar = (
+    <div className="flex flex-wrap items-center gap-2">
+      <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as TicketStatus | '')} className={selectCls}>
+        <option value="">All statuses</option>
+        {TICKET_STATUSES.filter((s) => s !== 'resolved' && s !== 'closed').map((s) => (
+          <option key={s} value={s}>{s.replace('_', ' ')}</option>
+        ))}
+      </select>
+
+      <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value as Priority | '')} className={selectCls}>
+        <option value="">All priorities</option>
+        {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+      </select>
+
+      <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className={selectCls}>
+        <option value="">All categories</option>
+        {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+      </select>
+
+      <select value={assignFilter} onChange={(e) => setAssignFilter(e.target.value as typeof assignFilter)} className={selectCls}>
+        <option value="all">All tickets</option>
+        <option value="mine">Assigned to me</option>
+        <option value="unassigned">Unassigned</option>
+      </select>
+    </div>
+  )
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        {filterBar}
+        <div className="flex flex-col gap-2">
+          {[...Array(6)].map((_, i) => <TicketCardSkeleton key={i} />)}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as TicketStatus | '')} className={selectCls}>
-          <option value="">All statuses</option>
-          {TICKET_STATUSES.filter((s) => s !== 'resolved' && s !== 'closed').map((s) => (
-            <option key={s} value={s}>{s.replace('_', ' ')}</option>
-          ))}
-        </select>
-
-        <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value as Priority | '')} className={selectCls}>
-          <option value="">All priorities</option>
-          {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
-        </select>
-
-        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className={selectCls}>
-          <option value="">All categories</option>
-          {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-
-        <select value={assignFilter} onChange={(e) => setAssignFilter(e.target.value as typeof assignFilter)} className={selectCls}>
-          <option value="all">All tickets</option>
-          <option value="mine">Assigned to me</option>
-          <option value="unassigned">Unassigned</option>
-        </select>
-
+        {filterBar}
         <span className="ms-auto text-xs text-muted-foreground">
           {filtered.length} ticket{filtered.length !== 1 ? 's' : ''}
         </span>
@@ -87,6 +121,7 @@ export function AgentQueue() {
               </div>
             )
           })}
+          {isLoadingMore && [...Array(3)].map((_, i) => <TicketCardSkeleton key={`more-${i}`} />)}
         </div>
       )}
 

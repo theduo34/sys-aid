@@ -6,6 +6,7 @@ export const createTicketSchema = z.object({
   category_id: z.string().uuid().nullable().optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   attachment_url: z.string().url().nullable().optional(),
+  assigned_to: z.string().uuid().nullable().optional(),
 })
 
 export const updateTicketSchema = z.object({

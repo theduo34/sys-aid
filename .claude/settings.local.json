@@ -20,7 +20,9 @@
       "Bash(bun build *)",
       "Bash(Remove-Item *)",
       "Bash(Get-ChildItem \"C:\\\\Users\\\\School\\\\KTU\\\\sys-aid\\\\features\\\\notifications\\\\types\" -ErrorAction SilentlyContinue)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(npx tsc *)",
+      "Bash(bunx supabase *)"
     ]
   }
 }

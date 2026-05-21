@@ -9,7 +9,10 @@ import {
   TicketIcon,
   QueueIcon,
   ChatCircleIcon,
+  LockIcon,
+  BookOpenIcon,
   ArrowSquareOutIcon,
+  SpinnerIcon,
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { useBasePath } from '@/hooks/useBasePath'
@@ -17,6 +20,9 @@ import type { DbNotification } from '../types/notification.types'
 
 interface Props {
   notifications: DbNotification[]
+  hasMore: boolean
+  isLoadingMore: boolean
+  onLoadMore: () => void
   onMarkAllRead: () => void
   onMarkRead: (id: string) => void
   onClose: () => void
@@ -43,12 +49,22 @@ function linkLabel(link: string | null): string {
 
 function NotifIcon({ type }: { type: string }) {
   if (type === 'comment_added')   return <ChatCircleIcon className="size-4 text-secondary shrink-0" />
+  if (type === 'internal_note')   return <LockIcon       className="size-4 text-warning shrink-0" />
   if (type === 'ticket_assigned') return <QueueIcon      className="size-4 text-warning shrink-0" />
+  if (type === 'kb_article')      return <BookOpenIcon   className="size-4 text-primary shrink-0" />
   if (type.startsWith('ticket'))  return <TicketIcon     className="size-4 text-primary shrink-0" />
   return <BellSimpleIcon className="size-4 text-muted-foreground shrink-0" />
 }
 
-export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, onClose }: Props) {
+export function NotificationPanel({
+  notifications,
+  hasMore,
+  isLoadingMore,
+  onLoadMore,
+  onMarkAllRead,
+  onMarkRead,
+  onClose,
+}: Props) {
   const router = useRouter()
   const base   = useBasePath()
   const [selected, setSelected] = useState<DbNotification | null>(null)
@@ -68,7 +84,7 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
   // ── Detail view ─────────────────────────────────────────────────────────────
   if (selected) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 px-4 py-2">
         <button
           onClick={() => setSelected(null)}
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors self-start"
@@ -77,7 +93,7 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
           Back
         </button>
 
-        <div className="flex flex-col gap-3">
+        <div className="rounded-lg border border-border bg-muted/30 p-4 flex flex-col gap-3">
           <div className="flex items-start gap-2.5">
             <NotifIcon type={selected.type} />
             <span className="text-sm font-semibold text-foreground leading-snug">{selected.title}</span>
@@ -88,14 +104,14 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
           )}
 
           <span className="text-[11px] text-muted-foreground">{timeAgo(selected.created_at)}</span>
-
-          {selected.link && (
-            <Button size="sm" className="mt-1 w-full" onClick={() => handleNavigate(selected.link)}>
-              <ArrowSquareOutIcon data-icon="inline-start" />
-              {linkLabel(selected.link)}
-            </Button>
-          )}
         </div>
+
+        {selected.link && (
+          <Button size="sm" className="w-full" onClick={() => handleNavigate(selected.link)}>
+            <ArrowSquareOutIcon data-icon="inline-start" />
+            {linkLabel(selected.link)}
+          </Button>
+        )}
       </div>
     )
   }
@@ -103,7 +119,7 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
   // ── Empty state ──────────────────────────────────────────────────────────────
   if (!notifications.length) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
+      <div className="flex flex-col items-center justify-center gap-2 py-16 px-4 text-center">
         <BellSimpleIcon className="size-8 text-muted-foreground/40" />
         <p className="text-sm font-medium text-foreground">All caught up</p>
         <p className="text-xs text-muted-foreground">No new notifications.</p>
@@ -113,7 +129,7 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
 
   // ── List view ────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col px-2">
       {unread > 0 && (
         <div className="flex items-center justify-between border-b border-border px-1 pb-3 mb-2">
           <span className="text-xs text-muted-foreground">{unread} unread</span>
@@ -150,6 +166,22 @@ export function NotificationPanel({ notifications, onMarkAllRead, onMarkRead, on
           </button>
         ))}
       </div>
+
+      {hasMore && (
+        <div className="flex justify-center pt-3 pb-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-muted-foreground"
+            onClick={onLoadMore}
+            disabled={isLoadingMore}
+          >
+            {isLoadingMore
+              ? <><SpinnerIcon className="size-3.5 animate-spin mr-1.5" />Loading…</>
+              : 'Load more notifications'}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

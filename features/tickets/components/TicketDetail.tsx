@@ -58,15 +58,15 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
       )}
 
       <div className="grid grid-cols-2 gap-4 border-t border-border pt-5 sm:grid-cols-3">
-        {ticket.created_by_profile && (
-          <div className="flex flex-col gap-1.5">
-            <span className="text-xs text-muted-foreground">Submitted by</span>
-            <div className="flex items-center gap-2">
-              <Avatar name={ticket.created_by_profile.full_name ?? ''} className="size-6 text-[10px]" />
-              <span className="text-sm text-foreground">{ticket.created_by_profile.full_name}</span>
-            </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs text-muted-foreground">Submitted by</span>
+          <div className="flex items-center gap-2">
+            <Avatar name={ticket.created_by_profile?.full_name ?? '?'} className="size-6 text-[10px]" />
+            <span className="text-sm text-foreground">
+              {ticket.created_by_profile?.full_name ?? 'Unknown'}
+            </span>
           </div>
-        )}
+        </div>
         <div className="flex flex-col gap-1">
           <span className="text-xs text-muted-foreground">Submitted</span>
           <span className="text-sm text-foreground">

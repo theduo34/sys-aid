@@ -64,7 +64,7 @@ export function Topbar({ impersonationSession }: TopbarProps) {
   const router   = useRouter()
   const { profile, signOut } = useAuth()
   const { resolvedTheme, setTheme } = useTheme()
-  const { notifications, unreadCount, markRead, markAllRead } = useNotifications()
+  const { notifications, hasMore, isLoadingMore, loadMore, unreadCount, markRead, markAllRead } = useNotifications()
   const [notifOpen,    setNotifOpen]   = useState(false)
   const [confirmOpen,  setConfirmOpen] = useState(false)
   const [profileOpen,  setProfileOpen] = useState(false)
@@ -193,9 +193,12 @@ export function Topbar({ impersonationSession }: TopbarProps) {
           <SheetHeader className="border-b border-border pb-4 shrink-0">
             <SheetTitle className="text-base">Notifications</SheetTitle>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex-1 overflow-y-auto py-2">
             <NotificationPanel
               notifications={notifications}
+              hasMore={hasMore}
+              isLoadingMore={isLoadingMore}
+              onLoadMore={loadMore}
               onMarkAllRead={markAllRead}
               onMarkRead={markRead}
               onClose={() => setNotifOpen(false)}
