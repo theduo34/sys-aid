@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Verify your KTU SysAid account</title>
+</head>
+<body style="margin:0;padding:0;background-color:#eef2ff;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#eef2ff;padding:36px 0;">
+    <tr>
+      <td align="center" style="padding:0 16px;">
+
+        <table width="560" cellpadding="0" cellspacing="0" style="max-width:100%;width:100%;border-radius:20px;background-color:#ffffff;">
+
+          <!-- HEADER -->
+          <tr>
+            <td width="100%" style="width:100%;background-color:#312e81;border-radius:20px 20px 0 0;padding:28px 36px 26px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
+                <tr>
+                  <td style="vertical-align:middle;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="background-color:#ffffff;border-radius:11px;padding:9px;vertical-align:middle;">
+                          <img
+                            src="https://api.iconify.design/ph:headset-fill.svg?color=%23312e81&width=24&height=24"
+                            width="24"
+                            height="24"
+                            alt="Headset"
+                            style="display:block;"
+                          />
+                        </td>
+                        <td style="padding-left:12px;vertical-align:middle;">
+                          <span style="font-size:17px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">KTU SysAid</span>
+                          <br/>
+                          <span style="font-size:10px;color:#a5b4fc;letter-spacing:1px;text-transform:uppercase;">IT Help Desk</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:22px 0 0;font-size:23px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.25;">
+                Verify your email address
+              </p>
+              <p style="margin:7px 0 0;font-size:13px;color:#c7d2fe;line-height:1.55;">
+                One quick step to activate your KTU SysAid account.
+              </p>
+            </td>
+          </tr>
+
+          <!-- BODY -->
+          <tr>
+            <td width="100%" style="width:100%;background-color:#ffffff;padding:34px 36px 30px;">
+
+              <p style="margin:0 0 26px;font-size:14px;color:#374151;line-height:1.75;">
+                Hi there, welcome to KTU SysAid! Enter the verification code below
+                to confirm your email address and finish setting up your account.
+              </p>
+
+              <!-- OTP Block -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:20px;">
+                <tr>
+                  <td width="100%" style="width:100%;background-color:#eff6ff;border:2px solid #c7d2fe;border-radius:16px;padding:26px 20px;text-align:center;">
+                    <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6366f1;">
+                      Your 8-digit verification code
+                    </p>
+                    <p style="margin:0;font-size:44px;font-weight:900;letter-spacing:10px;color:#1e1b4b;font-family:'Courier New',Courier,monospace;line-height:1.1;">
+                      {{ .Token }}
+                    </p>
+                    <p style="margin:10px 0 0;font-size:12px;color:#818cf8;">
+                      Press and hold the code above to copy it
+                    </p>
+                    <table cellpadding="0" cellspacing="0" style="margin:14px auto 0;">
+                      <tr>
+                        <td style="background-color:#fef3c7;border:1px solid #fcd34d;border-radius:20px;padding:5px 16px;text-align:center;">
+                          <span style="font-size:11px;font-weight:700;color:#92400e;">Expires in 60 minutes</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Deep-link button -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:28px;">
+                <tr>
+                  <td align="center">
+                    <a
+                      href="{{ .SiteURL }}/verify?email={{ .Email }}&code={{ .Token }}"
+                      style="display:inline-block;background-color:#4f46e5;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;padding:13px 32px;border-radius:12px;letter-spacing:-0.2px;"
+                    >
+                      Open in SysAid - tap to verify
+                    </a>
+                    <p style="margin:10px 0 0;font-size:11px;color:#9ca3af;">
+                      Tapping the button fills in your code automatically
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Steps -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:28px;">
+                <tr>
+                  <td width="100%" style="width:100%;background-color:#f8fafc;border-radius:12px;padding:18px 20px;">
+                    <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:1px;">
+                      How to verify manually
+                    </p>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:10px;">
+                      <tr>
+                        <td width="26" style="vertical-align:top;padding-top:1px;">
+                          <span style="display:inline-block;width:20px;height:20px;background-color:#6366f1;border-radius:50%;text-align:center;font-size:11px;font-weight:700;color:#ffffff;line-height:20px;">1</span>
+                        </td>
+                        <td style="padding-left:10px;font-size:13px;color:#6b7280;line-height:1.65;">
+                          Return to the KTU SysAid verification page in your browser.
+                        </td>
+                      </tr>
+                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:10px;">
+                      <tr>
+                        <td width="26" style="vertical-align:top;padding-top:1px;">
+                          <span style="display:inline-block;width:20px;height:20px;background-color:#6366f1;border-radius:50%;text-align:center;font-size:11px;font-weight:700;color:#ffffff;line-height:20px;">2</span>
+                        </td>
+                        <td style="padding-left:10px;font-size:13px;color:#6b7280;line-height:1.65;">
+                          Enter the 8-digit code above into the eight input boxes.
+                        </td>
+                      </tr>
+                    </table>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
+                      <tr>
+                        <td width="26" style="vertical-align:top;padding-top:1px;">
+                          <span style="display:inline-block;width:20px;height:20px;background-color:#6366f1;border-radius:50%;text-align:center;font-size:11px;font-weight:700;color:#ffffff;line-height:20px;">3</span>
+                        </td>
+                        <td style="padding-left:10px;font-size:13px;color:#6b7280;line-height:1.65;">
+                          Click <strong style="color:#374151;">Verify email</strong> and you will be taken to sign in.
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Divider -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:20px;">
+                <tr>
+                  <td style="border-top:1px solid #f1f5f9;font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+              </table>
+
+              <!-- Security note -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
+                <tr>
+                  <td width="22" style="vertical-align:top;font-size:15px;padding-top:1px;">&#x1F512;</td>
+                  <td style="padding-left:8px;font-size:12px;color:#9ca3af;line-height:1.75;">
+                    If you did not create a KTU SysAid account, please ignore this email.
+                    Never share this code with anyone - KTU IT staff will never ask for it.
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td width="100%" style="width:100%;background-color:#f8fafc;border-top:1px solid #e0e7ff;border-radius:0 0 20px 20px;padding:18px 36px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="width:100%;">
+                <tr>
+                  <td style="vertical-align:middle;">
+                    <p style="margin:0;font-size:12px;font-weight:600;color:#6b7280;">KTU IT Services</p>
+                    <p style="margin:3px 0 0;font-size:11px;color:#9ca3af;">Koforidua Technical University - Block A, Room 101</p>
+                  </td>
+                  <td align="right" style="vertical-align:middle;">
+                    <span style="font-size:12px;font-weight:700;color:#a5b4fc;letter-spacing:0.3px;">SysAid</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+
+        <p style="margin:20px 0 0;font-size:11px;color:#94a3b8;text-align:center;">
+          This is an automated message - please do not reply to this email.
+        </p>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
