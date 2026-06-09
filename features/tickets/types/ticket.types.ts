@@ -4,6 +4,6 @@ export type { Ticket }
 
 export interface TicketWithRelations extends Ticket {
   category: Category | null
-  created_by_profile: Pick<Profile, 'id' | 'full_name' | 'role'> | null
+  created_by_profile: Pick<Profile, 'id' | 'full_name' | 'email' | 'role'> | null
   assigned_to_profile: Pick<Profile, 'id' | 'full_name'> | null
 }

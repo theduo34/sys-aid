@@ -68,6 +68,12 @@ export function TicketDetail({ ticketId }: TicketDetailProps) {
           </div>
         </div>
         <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Submitted Email</span>
+          <span className="text-sm text-foreground">
+           {ticket.created_by_profile?.email ?? 'Unknown'}
+          </span>
+        </div>
+        <div className="flex flex-col gap-1">
           <span className="text-xs text-muted-foreground">Submitted</span>
           <span className="text-sm text-foreground">
             {new Date(ticket.created_at).toLocaleDateString('en-GB', {
