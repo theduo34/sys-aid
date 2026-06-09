@@ -15,6 +15,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -72,6 +73,7 @@ const navGroups: NavGroup[] = [
 export function AppSidebar() {
   const pathname = usePathname()
   const { role, user } = useAuth()
+  const { isMobile, setOpenMobile } = useSidebar()
 
   if (!role || !user) return null
 
@@ -131,7 +133,7 @@ export function AppSidebar() {
                               : 'text-sidebar-foreground/50 hover:bg-sidebar-foreground/5 hover:text-sidebar-foreground'
                           )}
                         >
-                          <Link href={href}>
+                          <Link href={href} onClick={() => isMobile && setOpenMobile(false)}>
                             <Icon className="size-4 shrink-0" />
                             <span className="ms-1 text-sm">{label}</span>
                           </Link>
